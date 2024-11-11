@@ -11,6 +11,9 @@ from src.constants.env import DB_URL
 from src.utils.json_handler import json_serialize
 
 class __DatabaseSessionManager:
+    """
+    A database session manager help manage multiple database engine easier than top-level definition
+    """
     def __init__(self, url: str, **engine_kwargs: Any) -> None:
         self._engine = create_async_engine(url, **engine_kwargs)
         self._session_maker = async_sessionmaker(bind=self._engine, expire_on_commit=True)
@@ -51,7 +54,6 @@ class __DatabaseSessionManager:
         self._engine = None
         self._session_maker = None
 
-
 DATABASE_MANAGER = __DatabaseSessionManager(
     DB_URL,
     pool_size=5,
@@ -60,7 +62,6 @@ DATABASE_MANAGER = __DatabaseSessionManager(
     pool_recycle=1800,
     pool_pre_ping=True,  # Phát hiện và loại bỏ kết nối chết,
     json_serializer=json_serialize)
-
 
 async def aget_db():
     """Retrieve a database session"""

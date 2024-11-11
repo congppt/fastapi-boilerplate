@@ -4,6 +4,11 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
+ENV = os.getenv("ENV")
+IS_PRODUCTION = ENV == "PRODUCTION"
+IS_DEVELOPMENT = ENV == "DEVELOPMENT"
+IS_LOCAL = not IS_PRODUCTION and not IS_DEVELOPMENT
+
 DB_URL = os.getenv("DB_URL")
 REDIS_URL = os.getenv("REDIS_URL")
 
