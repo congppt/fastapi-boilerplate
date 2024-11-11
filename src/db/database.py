@@ -8,7 +8,7 @@ from sqlalchemy.ext.asyncio import (
     AsyncSession)
 
 from src.constants.env import DB_URL
-from src.helpers.json_handler import json_serialize
+from src.utils.json_handler import json_serialize
 
 class __DatabaseSessionManager:
     def __init__(self, url: str, **engine_kwargs: Any) -> None:

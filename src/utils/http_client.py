@@ -4,7 +4,9 @@ from typing import Any
 
 from httpx import AsyncClient, Request, HTTPStatusError, TimeoutException
 
+from utils.decorators import extend
 
+@extend(AsyncClient)
 async def asend(self: AsyncClient, request: Request, callback: Callable[..., Any] = None, *callback_args, **callback_kwargs) -> Any:
     try:
         response = await self.send(request)
@@ -16,6 +18,7 @@ async def asend(self: AsyncClient, request: Request, callback: Callable[..., Any
         raise e
     return callback(response=response, *callback_args, **callback_kwargs) if callback else response
 
+@extend(AsyncClient)
 @asynccontextmanager
 async def astream(self: AsyncClient, request: Request, callback: Callable[..., Any] = None, *callback_args, **callback_kwargs) -> Any:
     try:
@@ -27,6 +30,3 @@ async def astream(self: AsyncClient, request: Request, callback: Callable[..., A
     except TimeoutException as e:
         # logging
         raise e
-
-AsyncClient.asend = asend
-AsyncClient.astream = astream

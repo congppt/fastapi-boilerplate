@@ -4,7 +4,7 @@ from typing import Any, Type
 from redis.asyncio import StrictRedis
 
 from src.constants.env import REDIS_URL
-from src.helpers.json_handler import json_deserialize, json_serialize
+from src.utils.json_handler import json_deserialize, json_serialize
 
 CACHE = StrictRedis.from_url(REDIS_URL)
 
