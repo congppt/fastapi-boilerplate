@@ -1,0 +1,14 @@
+fastapi
+uvicorn
+pydantic
+sqlalchemy[asyncio]
+asyncpg
+alembic
+apscheduler
+redis
+bcrypt
+pyjwt[crypto]
+openpyxl
+minio
+pandas
+python-dotenv
