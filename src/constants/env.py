@@ -15,3 +15,4 @@ MINIO_BUCKET = os.getenv("MINIO_BUCKET")
 
 API_PREFIX = os.getenv("API_PREFIX")
 ENCRYPT_KEY = os.getenv("ENCRYPT_KEY")
+PROXY=os.getenv("PROXY")

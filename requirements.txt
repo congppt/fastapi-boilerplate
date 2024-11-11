@@ -12,3 +12,4 @@ openpyxl
 minio
 pandas
 python-dotenv
+httpx
