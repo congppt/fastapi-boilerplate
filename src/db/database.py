@@ -1,3 +1,4 @@
+from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
 from typing import AsyncIterator, Any
 
@@ -41,8 +42,6 @@ class __DatabaseSessionManager:
             except Exception as e:
                 await session.rollback()
                 raise e
-            finally:
-                await session.close()
 
     async def aclose_connections(self) -> None:
         """Close all database connections"""
@@ -63,7 +62,7 @@ DATABASE_MANAGER = __DatabaseSessionManager(
     pool_pre_ping=True,  # Phát hiện và loại bỏ kết nối chết,
     json_serializer=json_serialize)
 
-async def aget_db():
+async def aget_db() -> AsyncGenerator[AsyncSession]:
     """Retrieve a database session"""
     async with DATABASE_MANAGER.aget_session() as session:
         yield session

@@ -18,6 +18,7 @@ __SUPPORTED_COLLECTIONS = (list, set, tuple)
 __PRIMITIVES = (int, str, bytes, float, bool, complex)
 
 def __union_deserialize(value: Any, union_types: tuple) -> Any:
+    """Deserialize value to given type union"""
     for typ in union_types:
         try:
             if typ in __PRIMITIVES:
@@ -28,7 +29,7 @@ def __union_deserialize(value: Any, union_types: tuple) -> Any:
     raise TypeError(f"{json_serialize(value)} cannot be deserialized into any type in {union_types}")
 
 def json_deserialize(json_str: str, model: Type[Any] = None) -> Any:
-    """Deserialize a json string into object"""
+    """Deserialize a json string into object of given type"""
     try:
         value = json.loads(json_str)
         # return dict/primitive if model not defined

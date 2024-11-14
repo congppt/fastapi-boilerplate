@@ -21,3 +21,7 @@ MINIO_BUCKET = os.getenv("MINIO_BUCKET")
 API_PREFIX = os.getenv("API_PREFIX")
 ENCRYPT_KEY = os.getenv("ENCRYPT_KEY")
 PROXY=os.getenv("PROXY")
+ACCESS_SECRET = os.getenv("ACCESS_SECRET")
+REFRESH_SECRET = os.getenv("REFRESH_SECRET")
+
+SENTRY_DSN = os.getenv("SENTRY_DSN")
