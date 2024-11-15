@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from starlette.middleware.cors import CORSMiddleware
-from starlette.middleware.httpsredirect import HTTPSRedirectMiddleware
 
+from middlewares.auth import AuthMiddleware
 from src.constants.env import API_PREFIX
 from src.db.cache import CACHE
 from src.db.database import DATABASE_MANAGER
@@ -22,9 +22,11 @@ middlewares: set = {
     (CORSMiddleware, {
         "allow_origins": ("*",),
         "allow_methods": ("*",),
-        "allow_headers": ("*",)
+        "allow_headers": ("*",),
+        "allow_credentials": True,
     }),
-    HTTPSRedirectMiddleware
+    LogMiddleware,
+    AuthMiddleware
 }
 for middleware in middlewares:
     if isinstance(middleware, tuple):
@@ -34,3 +36,4 @@ for middleware in middlewares:
 routers: set = {user_router}
 for router in routers:
     _app.include_router(router, prefix=f"/{API_PREFIX}")
+

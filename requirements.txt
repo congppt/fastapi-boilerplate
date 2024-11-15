@@ -16,3 +16,4 @@ httpx
 cryptography
 sentry-sdk
 starlette
+colorlog

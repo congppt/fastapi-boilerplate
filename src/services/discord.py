@@ -3,7 +3,7 @@ from http import HTTPMethod
 from httpx import Request
 
 from src.constants.env import PROXY
-from src.constants.external import Discord, REQUEST_TIMEOUT
+from src.constants.services import Discord, REQUEST_TIMEOUT
 from src.utils.http_client import HTTPClient
 
 __DISCORD = HTTPClient(base_url=Discord.DISCORD_BASE, timeout=REQUEST_TIMEOUT, proxy=PROXY, verify=False)
