@@ -1,9 +1,7 @@
 from datetime import datetime
-from email.policy import default
 
 from sqlalchemy import func
-from sqlalchemy.orm import DeclarativeBase, Mapped
-from sqlalchemy.testing.schema import mapped_column
+from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 
 
 class Entity(DeclarativeBase):

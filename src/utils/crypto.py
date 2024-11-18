@@ -4,16 +4,47 @@ from cryptography.fernet import Fernet
 from constants.env import ENCRYPT_KEY
 
 
-def hash_str(value: str) -> bytes:
-    return hashpw(value.encode(), gensalt())
+def hash_str(value: str | bytes, to_str = False) -> bytes:
+    """
+    Hash original string/bytes
+    :param value: original string
+    :param to_str: return string(True) or bytes(False) (default: False)
+    :return: Hashed bytes
+    """
+    value: bytes = value.encode() if isinstance(value, str) else value
+    result = hashpw(value, gensalt())
+    return result.decode() if to_str else result
 
-def match_original(target: str, source: bytes) -> bool:
-    return checkpw(target.encode(), source)
+def match_original(target: str | bytes, source: bytes) -> bool:
+    """
+    Check if given string is origin of hashed bytes
+    :param target: given string/bytes
+    :param source: hashed bytes
+    :return: True if given string is origin of hashed bytes
+    """
+    target: bytes = target.encode() if isinstance(target, str) else target
+    return checkpw(target, source)
 
 __fernet = Fernet(ENCRYPT_KEY)
 
-def encrypt(origin: str) -> bytes:
-    return __fernet.encrypt(origin.encode())
+def encrypt(origin: str | bytes, to_str = False) -> bytes | str:
+    """
+    Encrypt given string to bytes
+    :param origin: original string
+    :param to_str: return string(True) or bytes(False) (default: False)
+    :return: encrypted string/bytes
+    """
+    origin: bytes = origin.encode() if isinstance(origin, str) else origin
+    result = __fernet.encrypt(origin)
+    return result.decode() if to_str else result
 
-def decrypt(encrypted: str) -> bytes:
-    return __fernet.decrypt(encrypted.encode())
+def decrypt(encrypted: str | bytes, to_str = True) -> bytes | str:
+    """
+    Decrypt given string to original bytes
+    :param encrypted: encrypted string
+    :param to_str: return string(True) or bytes(False) (default: True)
+    :return: decrypted string/bytes
+    """
+    encrypted: bytes = encrypted.encode() if isinstance(encrypted, str) else encrypted
+    result = __fernet.decrypt(encrypted)
+    return result.decode() if to_str else result
