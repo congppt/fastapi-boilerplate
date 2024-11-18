@@ -10,5 +10,5 @@ __DISCORD = HTTPClient(base_url=Discord.DISCORD_BASE, timeout=REQUEST_TIMEOUT, p
 
 async def asend_notification(message: str) -> None:
     """Send notification to Discord"""
-    request = Request(method=HTTPMethod.POST, url=Discord.NOTIFICATION_PATH, data = {"content": message[:2000]})
+    request = Request(method=HTTPMethod.POST, url=Discord.NOTIFICATION_PATH, data={"content": message[:2000]})
     await __DISCORD.asend(request)

@@ -1,10 +1,9 @@
 import math
-from typing import Sequence
+from typing import Sequence, TypeVar, Generic
 
 from pydantic import BaseModel, Field
 from sqlalchemy import Select, select, func
 from sqlalchemy.ext.asyncio import AsyncSession
-from typing_extensions import TypeVar, Generic
 
 T = TypeVar('T')
 

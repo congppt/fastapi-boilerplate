@@ -11,25 +11,36 @@ class CustomJSONEncoder(json.JSONEncoder):
         return super().default(obj)
 
 def json_serialize(obj: Any) -> str:
-    """Serialize an oject into json string"""
+    """
+    Serialize an oject into json string
+    :param obj: object to serialize"""
     return json.dumps(obj, cls=CustomJSONEncoder)
 
 __SUPPORTED_COLLECTIONS = (list, set, tuple)
 __PRIMITIVES = (int, str, bytes, float, bool, complex)
 
-def __union_deserialize(value: Any, union_types: tuple) -> Any:
-    """Deserialize value to given type union"""
-    for typ in union_types:
+def __union_convert(value: Any, types: tuple) -> Any:
+    """
+    Convert value to one of given types that matched
+    :param value: value to convert
+    :param types: types
+    """
+    for typ in types:
         try:
             if typ in __PRIMITIVES:
                 return typ(value)
             return json_deserialize(json_serialize(value), typ)
         except (ValueError, TypeError):
             continue
-    raise TypeError(f"{json_serialize(value)} cannot be deserialized into any type in {union_types}")
+    raise TypeError(f"{json_serialize(value)} cannot be deserialized into any type in {types}")
 
 def json_deserialize(json_str: str, model: Type[Any] = None) -> Any:
-    """Deserialize a json string into object of given type"""
+    """
+    Deserialize a json string into object of given type
+    :param json_str: json represented as string
+    :param model: model to deserialize
+    :return: deserialized object
+    """
     try:
         value = json.loads(json_str)
         # return dict/primitive if model not defined
@@ -52,7 +63,7 @@ def json_deserialize(json_str: str, model: Type[Any] = None) -> Any:
             # handle case when model element type is not fixed to only 1 type
             if element_types and get_origin(element_types[0]) is Union:
                 union_types = get_args(element_types[0])
-                deserialized_values = [__union_deserialize(val, union_types) for val in value]
+                deserialized_values = [__union_convert(val, union_types) for val in value]
             # handle case when model element type is not defined/one type only
             else:
                 element_type = element_types[0] if element_types else None

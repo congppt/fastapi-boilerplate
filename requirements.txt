@@ -21,5 +21,4 @@ httpx
 cryptography
 sentry-sdk
 starlette
-typing_extensions
-python-dateutil
+aiosmtplib

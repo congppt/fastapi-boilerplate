@@ -12,13 +12,13 @@ from sqlalchemy.ext.asyncio import (
 from src.constants.env import DB_URL
 from src.utils.json_handler import json_serialize
 
-
-class __DatabaseSessionManager:
-    """
-    A database session manager help manage multiple database engine easier than top-level definition
-    """
-
+class DatabaseSessionManager:
     def __init__(self, url: str, **engine_kwargs: Any) -> None:
+        """
+            A database session manager help manage multiple database engine easier than top-level definition
+            :param url: Database connection string
+            :param engine_kwargs: Keyword arguments used for engine configuration
+        """
         self._engine = create_async_engine(url, **engine_kwargs)
         self._session_maker = async_sessionmaker(bind=self._engine)
 
@@ -63,8 +63,8 @@ class __DatabaseSessionManager:
         return self._engine
 
 
-DATABASE_MANAGER = __DatabaseSessionManager(
-    DB_URL,
+DATABASE_MANAGER = DatabaseSessionManager(
+    url=DB_URL,
     pool_size=5,
     max_overflow=10,  # max_overflow + pool_size = max size = 15
     pool_timeout=30,
