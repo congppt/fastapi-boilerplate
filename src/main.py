@@ -1,6 +1,8 @@
 from fastapi import FastAPI
 from starlette.middleware.cors import CORSMiddleware
 
+from auth.router import auth_router
+from config.router import config_router
 from middlewares.auth import AuthMiddleware
 from middlewares.log import LogMiddleware
 from src.constants.env import API_PREFIX
@@ -35,7 +37,7 @@ for middleware in middlewares:
     else:
         _app.add_middleware(middleware)
 
-routers: set = {user_router}
+routers: set = {auth_router, user_router, config_router}
 for router in routers:
     _app.include_router(router, prefix=f"/{API_PREFIX}")
 

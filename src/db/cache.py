@@ -14,7 +14,7 @@ class CacheSessionManager:
         """Close all connections including in-use connections."""
         await self._redis.aclose()
 
-    async def aget(self, key: str, model: Type[Any] = None):
+    async def aget(self, key: str, model: Type[Any] = None) -> Any:
         """
         Get object from cache
         :param key: key used to store object

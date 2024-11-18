@@ -5,10 +5,10 @@ from dependencies import DBDep
 
 auth_router = APIRouter(prefix="/auth", tags=["auth"])
 
-@auth_router.post("/login")
-async def login(request: AuthRequest, db: DBDep):
+@auth_router.post("")
+async def alogin(request: AuthRequest, db: DBDep):
     pass
 
 @auth_router.get("/refresh")
-async def refresh(refresh_token: str, db: DBDep):
+async def arefresh(refresh_token: str, db: DBDep):
     pass

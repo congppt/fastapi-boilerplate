@@ -1,4 +1,7 @@
+from typing import Any
+
 from sqlalchemy import ForeignKey
+from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import Mapped, mapped_column, foreign
 
 from db.models import Entity
@@ -12,3 +15,7 @@ class SystemFunction(Entity):
     path: Mapped[str]
 
     #relationship
+
+class SystemConfig(Entity):
+    key: Mapped[str] = mapped_column(primary_key=True)
+    value: Mapped[Any] = mapped_column(JSONB)

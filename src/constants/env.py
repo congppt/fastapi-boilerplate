@@ -23,5 +23,7 @@ ENCRYPT_KEY = os.getenv("ENCRYPT_KEY")
 PROXY=os.getenv("PROXY")
 ACCESS_SECRET = os.getenv("ACCESS_SECRET")
 REFRESH_SECRET = os.getenv("REFRESH_SECRET")
+ACCESS_EXP_MINUTES: int = int(os.getenv("ACCESS_EXP_MINUTES"))
+REFRESH_EXP_MINUTES: int = int(os.getenv("REFRESH_EXP_MINUTES"))
 
 SENTRY_DSN = os.getenv("SENTRY_DSN")
