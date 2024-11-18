@@ -4,16 +4,22 @@ pydantic
 sqlalchemy[asyncio]
 asyncpg
 alembic
+#background jobs
 apscheduler
+#celery
+#apache-airflow
 redis
 bcrypt
 pyjwt[crypto]
 openpyxl
+#blob storage
 minio
+#boto3
 pandas
 python-dotenv
 httpx
 cryptography
 sentry-sdk
 starlette
-colorlog
+typing_extensions
+python-dateutil
