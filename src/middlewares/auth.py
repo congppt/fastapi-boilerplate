@@ -18,13 +18,13 @@ from db.models.user import User
 
 
 class CurrentUser(BaseModel, BaseUser):
-    user_id: int | None
+    id: int | None
     is_active: bool = False
     model_config = ConfigDict(from_attributes=True)
 
     @property
     def is_authenticated(self) -> bool:
-        return self.user_id is not None
+        return self.id is not None
 
 
 def get_payload(token: str, secret: str) -> dict[str: Any]:

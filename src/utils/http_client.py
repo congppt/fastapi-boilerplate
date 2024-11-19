@@ -19,8 +19,11 @@ class HTTPClient(AsyncClient):
         :param callback_kwargs:
         :return:  response if no callback was given else result of callback
         """
+        response: Response | None = None
         try:
             response = await self.send(request)
+            callback_kwargs.update({"response": response})
+            return callback(*callback_args, **callback_kwargs) if callback else response
         except HTTPStatusError as e:
             # logging
             raise e
@@ -30,8 +33,8 @@ class HTTPClient(AsyncClient):
         except Exception as e:
             # logging
             raise e
-        callback_kwargs.update({"response": response})
-        return callback(*callback_args, **callback_kwargs) if callback else response
+        finally:
+            if response: await response.aclose()
 
     @asynccontextmanager
     async def astream(self,
