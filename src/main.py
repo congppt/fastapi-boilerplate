@@ -1,5 +1,6 @@
 from fastapi import FastAPI
-from starlette.middleware.cors import CORSMiddleware
+from starlette.middleware.authentication import AuthenticationMiddleware
+from fastapi.middleware.cors import CORSMiddleware
 
 from auth.router import auth_router
 from config.router import config_router
@@ -29,7 +30,7 @@ middlewares: set = {
         "allow_credentials": True,
     }),
     LogMiddleware,
-    AuthMiddleware
+    (AuthenticationMiddleware, {"backend": AuthMiddleware})
 }
 for middleware in middlewares:
     if isinstance(middleware, tuple):
@@ -41,3 +42,6 @@ routers: set = {auth_router, user_router, config_router}
 for router in routers:
     _app.include_router(router, prefix=f"/{API_PREFIX}")
 
+@_app.get("/health-check")
+async def health_check():
+    return "App is running"

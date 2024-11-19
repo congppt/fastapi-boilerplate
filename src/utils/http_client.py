@@ -1,12 +1,15 @@
 from collections.abc import Callable
 from contextlib import asynccontextmanager
-from typing import Any, AsyncIterator
+from typing import Any, AsyncGenerator
 
 from httpx import AsyncClient, Request, HTTPStatusError, TimeoutException, Response
 
 
 class HTTPClient(AsyncClient):
-    async def asend(self, request: Request, callback: Callable[..., Any] = None, *callback_args,
+    async def asend(self,
+                    request: Request,
+                    callback: Callable[..., Any] = None,
+                    *callback_args,
                     **callback_kwargs) -> Any:
         """
         Make async HTTP request
@@ -31,7 +34,10 @@ class HTTPClient(AsyncClient):
         return callback(*callback_args, **callback_kwargs) if callback else response
 
     @asynccontextmanager
-    async def astream(self, request: Request, callback: Callable[..., Any] = None, *callback_args,
+    async def astream(self,
+                      request: Request,
+                      callback: Callable[..., Any] = None,
+                      *callback_args,
                       **callback_kwargs) -> AsyncGenerator[Any]:
         """
         Make async HTTP request

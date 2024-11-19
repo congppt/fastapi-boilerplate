@@ -12,7 +12,10 @@ class PagingRequest(BaseModel):
     index: int = Field(0, ge=0)
 
 class PagingResponse(Generic[T]):
-    def __init__(self, items: Sequence[T], total_pages: int, has_next: bool):
+    def __init__(self,
+                 items: Sequence[T],
+                 total_pages: int,
+                 has_next: bool):
         self.items = items
         self.total_pages = total_pages
         self.has_next = has_next

@@ -5,7 +5,7 @@ from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from apscheduler.triggers.base import BaseTrigger
 
 from db.database import JOB_STORES
-from utils.rand import random_str
+from utils.random import random_str
 
 SCHEDULER = AsyncIOScheduler(jobstores=JOB_STORES)
 

@@ -5,8 +5,8 @@ from fastapi import status, HTTPException
 from pydantic import BaseModel, ConfigDict
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
-from starlette.middleware.base import BaseHTTPMiddleware
-from starlette.requests import Request
+from starlette.authentication import BaseUser, AuthenticationBackend, AuthCredentials, AuthenticationError
+from fastapi.requests import HTTPConnection
 
 from auth.schema import UserClaim
 from constants.app import AUTH_SCHEME, AUTH_ALGO, USER_CLAIM
@@ -17,11 +17,14 @@ from db.database import aget_db
 from db.models.user import User
 
 
-class CurrentUser(BaseModel):
-    user_id: int
-    is_active: bool
+class CurrentUser(BaseModel, BaseUser):
+    user_id: int | None
+    is_active: bool = False
     model_config = ConfigDict(from_attributes=True)
-    pass
+
+    @property
+    def is_authenticated(self) -> bool:
+        return self.user_id is not None
 
 
 def get_payload(token: str, secret: str) -> dict[str: Any]:
@@ -40,44 +43,31 @@ def get_payload(token: str, secret: str) -> dict[str: Any]:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Không thể xác thực thông tin người dùng")
 
 
-class AuthMiddleware(BaseHTTPMiddleware):
-    async def dispatch(self, request: Request, call_next):
-        auth_header = request.headers.get('Authorization')
+class AuthMiddleware(AuthenticationBackend):
+    async def authenticate(self, conn: HTTPConnection) -> tuple[AuthCredentials, BaseUser] | None:
+        auth_header = conn.get('Authorization')
+        if not auth_header:
+            return
+        scheme, token = auth_header.split()
+        if scheme.lower() != AUTH_SCHEME or not token:
+            raise AuthenticationError("Không thể xác thực thông tin người dùng")
         async for db in aget_db():
-            user = await self.aget_current_user(auth_header=auth_header, db=db)
+            user = await self.aget_current_user(token=token, db=db)
             await self.acheck_permission(user=user)
-            request.state.db = db
-            request.state.user = user
-            return await call_next(request)
+            conn.state.db = db
+            return AuthCredentials(['authenticated']), user
 
-    async def aget_current_user(self, auth_header: str, db: AsyncSession) -> CurrentUser | None:
+    async def aget_current_user(self, token: str, db: AsyncSession) -> CurrentUser | None:
         """
         Retrieve user info if authorization data is valid
-        :param auth_header: Authorization header
+        :param token: Token used for authentication
         :param db: Database session
         :return: Current user
         """
-        user = None
-        token = self.get_auth_token(auth_header=auth_header)
-        if token:
-            payload = get_payload(token=token, secret=ACCESS_SECRET)
-            user_claim = UserClaim(**payload.get(USER_CLAIM))
-            user = await self.aget_active_user(user_id=user_claim.id, db=db)
+        payload = get_payload(token=token, secret=ACCESS_SECRET)
+        user_claim = UserClaim(**payload.get(USER_CLAIM))
+        user = await self.aget_active_user(user_id=user_claim.id, db=db)
         return user
-
-    @staticmethod
-    def get_auth_token(auth_header: str):
-        """
-        Retrieve authorization token from request header
-        :param auth_header: Authorization header
-        :return:
-        """
-        if not auth_header:
-            raise HTTPException(status.HTTP_401_UNAUTHORIZED, "Không thể xác thực thông tin người dùng")
-        scheme, token = auth_header.split()
-        if scheme.lower() != AUTH_SCHEME:
-            raise HTTPException(status.HTTP_401_UNAUTHORIZED, "Không thể xác thực thông tin người dùng")
-        return token
 
     @staticmethod
     async def aget_active_user(user_id: int, db: AsyncSession) -> CurrentUser:
@@ -93,7 +83,8 @@ class AuthMiddleware(BaseHTTPMiddleware):
             query = select(User).where(User.id == user_id)
             user = await db.scalar(statement=query)
             if not user:
-                raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Không thể xác thực thông tin người dùng")
+                raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
+                                    detail="Không thể xác thực thông tin người dùng")
             current_user = CurrentUser(**vars(user))
         if not current_user.is_active:
             raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Tài khoản đã bị đình chỉ")

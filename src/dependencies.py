@@ -21,6 +21,6 @@ def get_current_user(request: Request) -> CurrentUser | None:
     :param request: Request object
     :return: Current user
     """
-    return request.state.user
+    return request.user
 
 CurrentUser = Annotated[CurrentUser, Depends(get_current_user)]
