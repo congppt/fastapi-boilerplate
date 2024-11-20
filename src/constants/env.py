@@ -8,6 +8,7 @@ ENV = os.getenv("ENV")
 IS_PRODUCTION = ENV == "PRODUCTION"
 IS_DEVELOPMENT = ENV == "DEVELOPMENT"
 IS_LOCAL = not IS_PRODUCTION and not IS_DEVELOPMENT
+CONFIG = os.getenv("CONFIG")
 
 DB_URL = os.getenv("DB_URL")
 REDIS_URL = os.getenv("REDIS_URL")

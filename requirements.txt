@@ -19,6 +19,6 @@ pandas
 python-dotenv
 httpx
 cryptography
-sentry-sdk
+sentry-sdk[fastapi]
 starlette
 aiosmtplib
