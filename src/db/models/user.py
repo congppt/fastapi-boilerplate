@@ -1,6 +1,6 @@
 from sqlalchemy.orm import Mapped, mapped_column
 
-from src.db.models import Entity
+from db.models import Entity
 
 
 class User(Entity):

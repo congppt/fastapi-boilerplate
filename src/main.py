@@ -7,9 +7,9 @@ from auth.router import auth_router
 from config.router import config_router
 from constants.env import CONFIG, SENTRY_DSN, ENV, IS_LOCAL
 from middlewares import middlewares
-from src.constants.env import API_PREFIX
-from src.db.cache import CACHE
-from src.db.database import DATABASE_MANAGER
+from constants.env import API_PREFIX
+from db.cache import CACHE
+from db.database import DATABASE_MANAGER
 from user.router import user_router
 
 
@@ -41,7 +41,7 @@ for middleware in middlewares:
     else:
         app.add_middleware(middleware)
 
-routers: set = {auth_router, user_router, config_router}
+routers = [auth_router, user_router, config_router]
 for router in routers:
     app.include_router(router, prefix=f"/{API_PREFIX}")
 

@@ -3,7 +3,7 @@ from starlette.middleware.authentication import AuthenticationMiddleware
 
 from .auth import AuthMiddleware
 from .log import  LogMiddleware
-middlewares: set = {
+middlewares: list = [
     (CORSMiddleware, {
         "allow_origins": ("*",),
         "allow_methods": ("*",),
@@ -12,4 +12,4 @@ middlewares: set = {
     }),
     LogMiddleware,
     (AuthenticationMiddleware, {"backend": AuthMiddleware})
-}
+]

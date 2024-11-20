@@ -13,8 +13,6 @@ def get_db(request: Request) -> AsyncSession:
     """
     return request.state.db
 
-DBDep = Annotated[AsyncSession, Depends(get_db)]
-
 def get_current_user(request: Request) -> CurrentUser | None:
     """
     Get current user of request
@@ -23,4 +21,4 @@ def get_current_user(request: Request) -> CurrentUser | None:
     """
     return request.user
 
-CurrentUser = Annotated[CurrentUser, Depends(get_current_user)]
+Client = Annotated[CurrentUser, Depends(get_current_user)]
