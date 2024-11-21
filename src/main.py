@@ -4,19 +4,19 @@ from typing import Sequence
 import sentry_sdk
 from fastapi import FastAPI
 
-from auth.router import auth_router
-from config.router import config_router
+import auth
+import config
+import user
 from constants.env import CONFIG, SENTRY_DSN, ENV, IS_LOCAL
 from middlewares import middlewares
 from constants.env import API_PREFIX
 from db import CACHE, DATABASE
-from user.router import user_router
 
 
 async def astartup():
-    config = ConfigParser()
-    config.read(CONFIG)
-    sentry_config = {key: value for key, value in config.items('Sentry')}
+    _config = ConfigParser()
+    _config.read(CONFIG)
+    sentry_config = {key: value for key, value in _config.items('Sentry')}
     sentry_sdk.init(dsn=SENTRY_DSN, environment=ENV, debug=IS_LOCAL, **sentry_config)
 
 
@@ -41,7 +41,7 @@ for middleware in middlewares:
     else:
         app.add_middleware(middleware)
 
-routers = [auth_router, user_router, config_router]
+routers = [auth.router, user.router, config.router]
 for router in routers:
     app.include_router(router, prefix=f"/{API_PREFIX}")
 

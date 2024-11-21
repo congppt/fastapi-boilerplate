@@ -12,8 +12,7 @@ from auth.schema import UserClaim
 from constants.app import AUTH_SCHEME, AUTH_ALGO, USER_CLAIM
 from constants.cache import CURRENT_USER_KEY
 from constants.env import ACCESS_SECRET
-from db import cache
-from db.database import aget_db
+from db import cache, aget_db
 from db.models.user import User
 
 
@@ -45,16 +44,17 @@ def get_payload(token: str, secret: str) -> dict[str: Any]:
 
 class AuthMiddleware(AuthenticationBackend):
     async def authenticate(self, conn: HTTPConnection) -> tuple[AuthCredentials, BaseUser] | None:
-        auth_header = conn.get('Authorization')
-        if not auth_header:
-            return
-        scheme, token = auth_header.split()
-        if scheme.lower() != AUTH_SCHEME or not token:
-            raise AuthenticationError("Không thể xác thực thông tin người dùng")
         async for db in aget_db():
+            conn.state.db = db
+            auth_header = conn.get('Authorization')
+            if not auth_header:
+                return
+            scheme, token = auth_header.split()
+            if scheme.lower() != AUTH_SCHEME or not token:
+                raise AuthenticationError("Không thể xác thực thông tin người dùng")
             user = await self.aget_current_user(token=token, db=db)
             await self.acheck_permission(user=user)
-            conn.state.db = db
+
             return AuthCredentials(['authenticated']), user
 
     async def aget_current_user(self, token: str, db: AsyncSession) -> CurrentUser | None:

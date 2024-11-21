@@ -21,7 +21,7 @@ DATABASE = DatabaseSessionManager(
     pool_pre_ping=True,  # Phát hiện và loại bỏ kết nối chết,
     json_serializer=json_serialize)
 
-async def aget_db() -> AsyncGenerator[AsyncSession]:
+async def aget_db() -> AsyncGenerator[AsyncSession, None]:
     """Retrieve a database session"""
     async with DATABASE.aget_session() as session:
         yield session

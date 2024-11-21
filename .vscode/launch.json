@@ -9,6 +9,7 @@
             "type": "debugpy",
             "request": "launch",
             "module": "uvicorn",
+            //Set workspace folder to src folder for correct startup
             "cwd":"${workspaceFolder}\\src",
             "args": [
                 "main:app",
