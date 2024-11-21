@@ -1,16 +1,11 @@
-from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
 from typing import AsyncIterator, Any
 
-from apscheduler.jobstores.sqlalchemy import SQLAlchemyJobStore
 from sqlalchemy.ext.asyncio import (
     create_async_engine,
     async_sessionmaker,
     AsyncConnection,
     AsyncSession)
-
-from constants.env import DB_URL
-from utils.json_handler import json_serialize
 
 class DatabaseSessionManager:
     def __init__(self, url: str, **engine_kwargs: Any) -> None:
@@ -63,21 +58,8 @@ class DatabaseSessionManager:
         return self._engine
 
 
-DATABASE_MANAGER = DatabaseSessionManager(
-    url=DB_URL,
-    pool_size=5,
-    max_overflow=10,  # max_overflow + pool_size = max size = 15
-    pool_timeout=30,
-    pool_recycle=1800,
-    pool_pre_ping=True,  # Phát hiện và loại bỏ kết nối chết,
-    json_serializer=json_serialize)
 
 
-async def aget_db() -> AsyncGenerator[AsyncSession]:
-    """Retrieve a database session"""
-    async with DATABASE_MANAGER.aget_session() as session:
-        yield session
 
-JOB_STORES = {
-    'default': SQLAlchemyJobStore(engine=DATABASE_MANAGER.engine)
-}
+
+

@@ -4,7 +4,7 @@ from typing import Callable, Any
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from apscheduler.triggers.base import BaseTrigger
 
-from db.database import JOB_STORES
+from db import JOB_STORES
 from utils.random import random_str
 
 SCHEDULER = AsyncIOScheduler(jobstores=JOB_STORES)

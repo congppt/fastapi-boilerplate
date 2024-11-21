@@ -1,4 +1,5 @@
 from configparser import ConfigParser
+from typing import Sequence
 
 import sentry_sdk
 from fastapi import FastAPI
@@ -8,8 +9,7 @@ from config.router import config_router
 from constants.env import CONFIG, SENTRY_DSN, ENV, IS_LOCAL
 from middlewares import middlewares
 from constants.env import API_PREFIX
-from db.cache import CACHE
-from db.database import DATABASE_MANAGER
+from db import CACHE, DATABASE
 from user.router import user_router
 
 
@@ -24,7 +24,7 @@ async def ashutdown():
     # close cache connections
     await CACHE.aclose()
     # close database connections
-    await DATABASE_MANAGER.aclose_connections()
+    await DATABASE.aclose_connections()
 
 
 async def lifespan(_app: FastAPI):
@@ -36,7 +36,7 @@ async def lifespan(_app: FastAPI):
 app = FastAPI()
 
 for middleware in middlewares:
-    if isinstance(middleware, tuple):
+    if isinstance(middleware, Sequence):
         app.add_middleware(middleware[0], **middleware[1])
     else:
         app.add_middleware(middleware)
