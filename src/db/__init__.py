@@ -6,7 +6,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from apscheduler.jobstores.sqlalchemy import SQLAlchemyJobStore
 
 from constants.env import DB_URL, REDIS_URL
-from utils.json_handler import json_serialize
+from utils.serializer import json_serialize
 from .cache import CacheSessionManager
 from .database import DatabaseSessionManager
 from .models.student import *
@@ -32,7 +32,7 @@ JOB_STORES = {
 
 CACHE = CacheSessionManager(REDIS_URL)
 
-async def aget(key: str, model: Type[Any] = None):
+async def aget_cache(key: str, model: Type[Any] = None):
     """
         Get object from cache
         :param key: key used to store object
@@ -41,7 +41,7 @@ async def aget(key: str, model: Type[Any] = None):
     """
     return await CACHE.aget(key=key, model=model)
 
-async def aset(key: str, value: Any, expire: int | timedelta = None):
+async def aset_cache(key: str, value: Any, expire: int | timedelta = None):
     """
         Store object in cache
         :param key: key used to store

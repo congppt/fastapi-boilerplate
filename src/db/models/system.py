@@ -17,5 +17,6 @@ class SystemFunction(Entity):
     #relationship
 
 class SystemConfig(Entity):
+    __tablename__ = 'SYSTEM_CONFIG'
     key: Mapped[str] = mapped_column(primary_key=True)
     value: Mapped[Any] = mapped_column(JSONB)

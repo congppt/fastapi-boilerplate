@@ -1,23 +1,20 @@
-from configparser import ConfigParser
+from contextlib import asynccontextmanager
 from typing import Sequence
 
-import sentry_sdk
 from fastapi import FastAPI
 
 import auth
 import config
 import user
-from constants.env import CONFIG, SENTRY_DSN, ENV, IS_LOCAL
+import workplace
+from logger import setup_logger
 from middlewares import middlewares
 from constants.env import API_PREFIX
 from db import CACHE, DATABASE
 
-
+logger = setup_logger(__name__)
 async def astartup():
-    _config = ConfigParser()
-    _config.read(CONFIG)
-    sentry_config = {key: value for key, value in _config.items('Sentry')}
-    sentry_sdk.init(dsn=SENTRY_DSN, environment=ENV, debug=IS_LOCAL, **sentry_config)
+    logger.info("Application startup")
 
 
 async def ashutdown():
@@ -25,15 +22,16 @@ async def ashutdown():
     await CACHE.aclose()
     # close database connections
     await DATABASE.aclose_connections()
+    logger.info("Application shutdown")
 
-
+@asynccontextmanager
 async def lifespan(_app: FastAPI):
     await astartup()
     yield
     await ashutdown()
 
 
-app = FastAPI()
+app = FastAPI(lifespan=lifespan)
 
 for middleware in middlewares:
     if isinstance(middleware, Sequence):
@@ -41,7 +39,7 @@ for middleware in middlewares:
     else:
         app.add_middleware(middleware)
 
-routers = [auth.router, user.router, config.router]
+routers = [auth.router, user.router, config.router, workplace.router]
 for router in routers:
     app.include_router(router, prefix=f"/{API_PREFIX}")
 

@@ -1,14 +1,17 @@
 from http import HTTPMethod
 
-from httpx import Request
 
+from config import STARTUP_CONFIG
+from config.schema import DiscordConfig
+from constants import REQUEST_TIMEOUT
 from constants.env import PROXY
-from constants.services import Discord, REQUEST_TIMEOUT
 from utils.http_client import HTTPClient
 
-__DISCORD = HTTPClient(base_url=Discord.DISCORD_BASE, timeout=REQUEST_TIMEOUT, proxy=PROXY, verify=False)
-
+__CONFIG: DiscordConfig = STARTUP_CONFIG.get(section='discord', model=DiscordConfig)
+__CLIENT = HTTPClient(base_url=__CONFIG.base_url, timeout=REQUEST_TIMEOUT, proxy=PROXY, verify=False)
 async def asend_notification(message: str) -> None:
     """Send notification to Discord"""
-    request = Request(method=HTTPMethod.POST, url=Discord.NOTIFICATION_PATH, data={"content": message[:2000]})
-    await __DISCORD.asend(request)
+    print(HTTPMethod.POST)
+    request = __CLIENT.build_request(method=HTTPMethod.POST, url=__CONFIG.notification_path, data={"content": message[:2000]})
+    response = await __CLIENT.asend(request)
+    print(response)

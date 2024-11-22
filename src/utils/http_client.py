@@ -8,7 +8,7 @@ from httpx import AsyncClient, Request, HTTPStatusError, TimeoutException, Respo
 class HTTPClient(AsyncClient):
     async def asend(self,
                     request: Request,
-                    callback: Callable[..., Any] = None,
+                    callback: Callable[..., Any] | None = None,
                     *callback_args,
                     **callback_kwargs) -> Any:
         """
@@ -22,6 +22,9 @@ class HTTPClient(AsyncClient):
         response: Response | None = None
         try:
             response = await self.send(request)
+            if not callback:
+                return response
+            callback_kwargs = callback_kwargs or {}
             callback_kwargs.update({"response": response})
             return callback(*callback_args, **callback_kwargs) if callback else response
         except HTTPStatusError as e:
@@ -41,7 +44,7 @@ class HTTPClient(AsyncClient):
                       request: Request,
                       callback: Callable[..., Any] = None,
                       *callback_args,
-                      **callback_kwargs) -> AsyncGenerator[Any]:
+                      **callback_kwargs) -> AsyncGenerator[Any, None]:
         """
         Make async HTTP request
         :param request: input data for HTTP call
@@ -53,6 +56,10 @@ class HTTPClient(AsyncClient):
         response: Response | None = None
         try:
             response: Response = await self.send(request, stream=True)
+            if not callback:
+                yield response
+            callback_kwargs = callback_kwargs or {}
+            callback_kwargs.update({"response": response})
             yield callback(response=response, *callback_args, **callback_kwargs) if callback else response
         except HTTPStatusError as e:
             # logging

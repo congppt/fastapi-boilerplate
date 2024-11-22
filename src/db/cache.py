@@ -3,7 +3,7 @@ from typing import Any, Type
 
 from redis.asyncio import StrictRedis
 
-from utils.json_handler import json_deserialize, json_serialize
+from utils.serializer import json_deserialize, json_serialize
 
 
 class CacheSessionManager:

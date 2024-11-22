@@ -1,9 +1,6 @@
-from configparser import ConfigParser
+from typing import Annotated
 
-from pydantic import BaseModel, ConfigDict
-
-from constants.env import CONFIG
-from utils.singleton import Singleton
+from pydantic import BaseModel, ConfigDict, Field
 
 
 class EmailServer(BaseModel):
@@ -15,11 +12,11 @@ class EmailServer(BaseModel):
     start_tls: bool = True
     model_config = ConfigDict(from_attributes=True)
 
-class InitConfig(metaclass=Singleton):
-    def __init__(self):
-        self._parser = ConfigParser()
-        self._parser.read(CONFIG)
+class SentryConfig(BaseModel):
+    traces_sample_rate: Annotated[float, Field(ge=0.0, le=1.0)]
+    sample_rate: Annotated[float, Field(ge=0.0, le=1.0)]
+    profiles_sample_rate: Annotated[float, Field(ge=0.0, le=1.0)]
 
-    def get(self, section: str) -> dict[str, str]:
-        return {key: value for key, value in self._parser.items(section)}
-
+class DiscordConfig(BaseModel):
+    base_url: Annotated[str, Field()]
+    notification_path: Annotated[str, Field()]

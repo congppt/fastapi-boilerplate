@@ -9,7 +9,7 @@ from starlette.authentication import BaseUser, AuthenticationBackend, AuthCreden
 from fastapi.requests import HTTPConnection
 
 from auth.schema import UserClaim
-from constants.app import AUTH_SCHEME, AUTH_ALGO, USER_CLAIM
+from constants import AUTH_SCHEME, AUTH_ALGO, USER_CLAIM
 from constants.cache import CURRENT_USER_KEY
 from constants.env import ACCESS_SECRET
 from db import cache, aget_db

@@ -4,9 +4,9 @@ import jwt
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from auth.schema import AuthRequest, AuthResponse
-from constants.app import AUTH_ALGO, AUTH_SCHEME, USER_CLAIM
+from constants import AUTH_ALGO, AUTH_SCHEME, USER_CLAIM
 from constants.env import ACCESS_SECRET, REFRESH_SECRET, ACCESS_EXP_MINUTES, REFRESH_EXP_MINUTES
-from utils.json_handler import CustomJSONEncoder
+from utils.serializer import CustomJSONEncoder
 
 
 def __create_token(payload: dict, secret: str, exp_after: timedelta) -> str:
