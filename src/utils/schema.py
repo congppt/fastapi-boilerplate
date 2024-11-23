@@ -1,15 +1,41 @@
-import math
-from typing import Sequence, TypeVar, Generic
+from datetime import datetime
+from typing import Sequence, TypeVar, Generic, Literal, Annotated, Any
 
-from pydantic import BaseModel, Field
-from sqlalchemy import Select, select, func
-from sqlalchemy.ext.asyncio import AsyncSession
+from pydantic import BaseModel, Field, ConfigDict, conlist, field_validator, model_validator
+from pydantic.v1 import PositiveInt, NonNegativeInt
+
+from utils import PRIMITIVES
 
 T = TypeVar('T')
-
+FILTER_TYPES = (*PRIMITIVES, datetime)
 class PagingRequest(BaseModel):
-    size: int | None = Field(ge=1)
-    index: int = Field(0, ge=0)
+    size: PositiveInt
+    index: NonNegativeInt
+    model_config = ConfigDict(from_attributes=True)
+
+class QueryFilter(BaseModel):
+    attribute: Annotated[str, Field(...)]
+    values: conlist(Any, min_length=1, unique_items=True)
+    options: Literal['IN', 'BETWEEN']
+    negate: bool
+
+    @field_validator('values')
+    def values_validate(cls, v):    # noqa
+        typ = type(v[0])
+        if typ not in FILTER_TYPES:
+            raise ValueError(f'{typ} is not a valid filter type')
+        if any(type(item) != typ for item in v):
+            raise ValueError('Values must have the same type')
+        return v
+
+    @model_validator(mode='after')
+    def options_validate(self):
+        if self.options is 'BETWEEN' and len(self.values) != 2:
+            raise ValueError('BETWEEN filter only accepts 2 values')
+
+
+class QueryRequest(PagingRequest):
+    filters: str
 
 class PagingResponse(Generic[T]):
     def __init__(self,
@@ -19,18 +45,3 @@ class PagingResponse(Generic[T]):
         self.items = items
         self.total_pages = total_pages
         self.has_next = has_next
-    @classmethod
-    async def from_query(cls, db: AsyncSession, query: Select[tuple], page: PagingRequest) -> 'PagingResponse[T]':
-        """
-        Executes given query and return paging result.
-
-        ``query`` parameter should not be chained with ``limit()`` and ``offset()`` to avoid wrong counting.
-        """
-        count_query = select(func.count()).where(query.whereclause)
-        count = await db.scalar(count_query)
-        total_pages = math.ceil(count / page.size)
-        page_query = query.offset(page.index * page.size).limit(page.size + 1)
-        items = (await db.execute(page_query)).tuples().all()
-        has_next = len(items) > page.size
-        items = items[:-1] if has_next else items
-        return cls(items, total_pages, has_next)

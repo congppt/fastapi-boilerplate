@@ -1,6 +1,7 @@
 fastapi
 uvicorn
 pydantic
+pydantic-extra-types
 sqlalchemy[asyncio]
 asyncpg
 alembic

@@ -1,11 +1,7 @@
 {
-  "discord": {
-    "base_url": "https://discord.com/api/",
-    "notification_path": "webhooks/1286365917332246558/Quvl1pipifkTw5e-SpfA6oNvSuPt67_dRoarGP0YLLr33yKLWEarhJlXXvBrYPl1FEpf"
-  },
   "sentry": {
     "traces_sample_rate": 0.0,
-    "sample_rate": 1.0,
+    "sample_rate": 0.0,
     "profiles_sample_rate": 0.0
   },
   "logging": {
@@ -31,6 +27,12 @@
         "maxBytes": 5242880,
         "backupCount": 3,
         "encoding": "utf8"
+      },
+      "error_handler": {
+        "class": "logger.handler.AsyncErrorHandler",
+        "level": "ERROR",
+        "formatter": "default",
+        "funcs": ["services.discord.asend_notification"]
       }
     },
     "loggers": {
@@ -38,7 +40,8 @@
         "level": "DEBUG",
         "handlers": [
           "console",
-          "file"
+          "file",
+          "error_handler"
         ]
       }
     }

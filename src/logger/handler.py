@@ -1,11 +1,11 @@
 import asyncio
 import importlib
 import logging
-from typing import Callable, Any
+from typing import Callable, Any, Sequence
 
 
 class AsyncErrorHandler(logging.Handler):
-    def __init__(self, *funcs: Callable[[str], Any], **kwargs):
+    def __init__(self, funcs: Sequence[Callable[[str], Any]], **kwargs):
         super().__init__(level=logging.ERROR)
         if 'funcs' in kwargs:
             funcs = (*funcs, *self._resolve_funcs(kwargs.pop('funcs')))
@@ -15,6 +15,7 @@ class AsyncErrorHandler(logging.Handler):
         log_entry = self.format(record)
         # Call the registered functions
         asyncio.run(self._run_async_if_possible(log_entry))
+
     async def _run_async_if_possible(self, log_entry):
         """
         Runs all registered functions asynchronously, whether sync or async.

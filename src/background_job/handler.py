@@ -1,13 +1,11 @@
 import inspect
 from typing import Callable, Any
 
-from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from apscheduler.triggers.base import BaseTrigger
 
-from db import JOB_STORES
+from background_job import SCHEDULER
 from utils.random import random_str
 
-SCHEDULER = AsyncIOScheduler(jobstores=JOB_STORES)
 
 
 def add_background_job(func: Callable[..., Any],

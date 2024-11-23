@@ -1,9 +1,9 @@
 from fastapi.middleware.cors import CORSMiddleware
 from starlette.middleware.authentication import AuthenticationMiddleware
 
-from .auth import AuthMiddleware
-from .log import  LogMiddleware
-middlewares: list = [
+from middlewares.auth import AuthMiddleware
+from middlewares.log import  LogMiddleware
+middlewares: tuple = (
     (CORSMiddleware, {
         "allow_origins": ("*",),
         "allow_methods": ("*",),
@@ -12,4 +12,4 @@ middlewares: list = [
     }),
     LogMiddleware,
     (AuthenticationMiddleware, {"backend": AuthMiddleware()})
-]
+)

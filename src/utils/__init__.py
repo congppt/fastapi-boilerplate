@@ -1,2 +1,2 @@
-PRIMITIVES = (int, str, bytes, float, bool, complex)
+PRIMITIVES = (int, str, bytes, float, bool)
 SUPPORTED_COLLECTIONS = (list, set, tuple)

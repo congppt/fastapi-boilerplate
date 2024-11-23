@@ -1,9 +1,9 @@
 import json
-from typing import Type, Any, get_args, get_origin, Union
+from typing import Type, Any, get_origin
 
 from pydantic import BaseModel
 
-from utils import PRIMITIVES, SUPPORTED_COLLECTIONS
+from utils import PRIMITIVES
 from utils.parser import parse
 
 

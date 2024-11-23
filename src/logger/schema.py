@@ -1,5 +1,5 @@
 from pydantic import BaseModel, Field
-from typing import Dict, Any, List, Annotated, Literal
+from typing import Any, Annotated, Literal
 
 
 class FormatterConfig(BaseModel):
@@ -15,7 +15,7 @@ class HandlerConfig(BaseModel):
     class_: Annotated[str, Field(alias="class")]
     level: str | None
     formatter: str | None
-    filters: list[str]
+    filters: tuple[str]
     filename: str | None
     maxBytes: int | None
     backupCount: int = None
@@ -23,7 +23,7 @@ class HandlerConfig(BaseModel):
 
 class LoggerConfig(BaseModel):
     level: str
-    handlers: List[str]
+    handlers: tuple[str]
     propagate: bool = True
 
 class LoggingConfig(BaseModel):
@@ -33,5 +33,5 @@ class LoggingConfig(BaseModel):
     filters: dict[str, FilterConfig]
     handlers: dict[str, HandlerConfig]
     root: LoggerConfig
-    loggers: Dict[str, LoggerConfig] = {}
+    loggers: dict[str, LoggerConfig] = {}
 

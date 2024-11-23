@@ -35,11 +35,10 @@ def parse(value: Any, model: Type[Any], hook: Callable[[Any, Type[Any]], Any]) -
             return model(value)
         else:
             return model(**value)
-
     # handle case when model is collection
     if origin_type in SUPPORTED_COLLECTIONS:
         if not isinstance(value, list):
-            raise TypeError(f'{value} is not a list')
+            raise TypeError(f'{value} is not a collection')
         element_types = get_args(model)
         # handle case when model element type is not fixed to only 1 type
         if element_types and get_origin(element_types[0]) is Union:

@@ -2,7 +2,7 @@ from typing import Any
 
 from sqlalchemy import ForeignKey
 from sqlalchemy.dialects.postgresql import JSONB
-from sqlalchemy.orm import Mapped, mapped_column, foreign
+from sqlalchemy.orm import Mapped, mapped_column
 
 from db.models import Entity
 

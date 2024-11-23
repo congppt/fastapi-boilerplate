@@ -1,3 +1,4 @@
+import asyncio
 from functools import wraps
 from typing import Callable, Any
 
@@ -27,7 +28,10 @@ def pre_run(*funcs: Callable[[], Any]) -> Callable:
         @wraps(function)
         def wrapper(*args, **kwargs):
             for func in funcs:
-                func()
+                if asyncio.iscoroutinefunction(func):
+                    asyncio.run(func())
+                else:
+                    func()
                 return function(*args, **kwargs)
         return wrapper
     return _decorator

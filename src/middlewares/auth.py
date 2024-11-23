@@ -12,7 +12,7 @@ from auth.schema import UserClaim
 from constants import AUTH_SCHEME, AUTH_ALGO, USER_CLAIM
 from constants.cache import CURRENT_USER_KEY
 from constants.env import ACCESS_SECRET
-from db import cache, aget_db
+from db import aget_db, aget_cache
 from db.models.user import User
 
 
@@ -78,7 +78,7 @@ class AuthMiddleware(AuthenticationBackend):
         :return: Current user
         """
         key = CURRENT_USER_KEY.format(user_id)
-        current_user = cache.aget(key=key, model=CurrentUser)
+        current_user = aget_cache(key=key, model=CurrentUser)
         if not current_user:
             query = select(User).where(User.id == user_id)
             user = await db.scalar(statement=query)

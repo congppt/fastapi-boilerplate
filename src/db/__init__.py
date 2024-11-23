@@ -3,14 +3,12 @@ from datetime import timedelta
 from typing import Type, Any
 
 from sqlalchemy.ext.asyncio import AsyncSession
-from apscheduler.jobstores.sqlalchemy import SQLAlchemyJobStore
 
 from constants.env import DB_URL, REDIS_URL
 from utils.serializer import json_serialize
-from .cache import CacheSessionManager
-from .database import DatabaseSessionManager
-from .models.student import *
-from .models.user import *
+from db.cache import CacheSessionManager
+from db.database import DatabaseSessionManager
+from db.models.user import *
 
 DATABASE = DatabaseSessionManager(
     url=DB_URL,
@@ -26,9 +24,7 @@ async def aget_db() -> AsyncGenerator[AsyncSession, None]:
     async with DATABASE.aget_session() as session:
         yield session
 
-JOB_STORES = {
-    'default': SQLAlchemyJobStore(engine=DATABASE.engine)
-}
+
 
 CACHE = CacheSessionManager(REDIS_URL)
 

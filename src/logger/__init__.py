@@ -1,5 +1,4 @@
 import logging.config
-from logging.handlers import RotatingFileHandler
 from typing import Any
 
 import sentry_sdk
@@ -14,9 +13,9 @@ def setup_logger(name: str = "app"):
     sentry_config: dict[str, Any] = STARTUP_CONFIG.get(section='sentry')
     sentry_sdk.init(dsn=SENTRY_DSN,
                     environment=ENV,
-                    debug=IS_LOCAL,
-                    integrations=[StarletteIntegration(),
-                                  FastApiIntegration()],
+                    #debug=IS_LOCAL,
+                    # integrations=[StarletteIntegration(),
+                    #               FastApiIntegration()],
                     **sentry_config)
 
     # Logger Configuration
