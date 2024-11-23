@@ -44,9 +44,6 @@ def json_deserialize(json_str: str, model: Type[Any] = None) -> Any:
     except json.JSONDecodeError:
         # fallback to current value
         return json_str
-    except Exception as e:
-        # logging
-        raise e
 
 def json_parse(value_: Any, model_: Type[Any]) -> Any:
     return json_deserialize(json_serialize(value_), model_)

@@ -13,7 +13,10 @@
     "disable_existing_loggers": false,
     "formatters": {
       "default": {
-        "format": "%(asctime)s - %(levelname)s - %(message)s"
+        "format": "%(asctime)s - %(levelname)-8s - %(message)s"
+      },
+      "exception": {
+        "format": "%(asctime)s - %(levelname)-8s [IP: %(clientip)s] [Duration: %(duration).2fs] - %(message)s"
       }
     },
     "handlers": {
@@ -31,6 +34,12 @@
         "maxBytes": 5242880,
         "backupCount": 3,
         "encoding": "utf8"
+      },
+      "error_handler": {
+        "class": "logger.handler.AsyncErrorHandler",
+        "level": "ERROR",
+        "formatter": "exception",
+        "funcs": ["logger.alog_discord"]
       }
     },
     "loggers": {
@@ -38,7 +47,8 @@
         "level": "DEBUG",
         "handlers": [
           "console",
-          "file"
+          "file",
+          "error_handler"
         ]
       }
     }

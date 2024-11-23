@@ -1,3 +1,4 @@
+import logging
 from email.message import EmailMessage
 from typing import Sequence, Literal
 
@@ -29,7 +30,7 @@ async def send_email(body: str,
                     data = f.read()
                     filename = attachment.split("/")[-1]
             except FileNotFoundError:
-                # logging
+                logging.warning(f'{attachment} was not found')
                 continue
         message.add_attachment(data, maintype="application", subtype="octet-stream", filename=filename)
     inline_images = inline_images or {}
@@ -43,7 +44,7 @@ async def send_email(body: str,
                     data = f.read()
                     ext = image.split(".")[-1]
             except FileNotFoundError:
-                # logging
+                logging.warning(f'{image} was not found.')
                 continue
         message.add_related(data, maintype="image",subtype=ext, cid=f"<{cid}>")
         if protocol == 'smtp':

@@ -5,9 +5,9 @@ from dotenv import load_dotenv
 load_dotenv()
 
 ENV = os.getenv("ENV")
-IS_PRODUCTION = ENV == "PRODUCTION"
-IS_DEVELOPMENT = ENV == "DEVELOPMENT"
-IS_LOCAL = not IS_PRODUCTION and not IS_DEVELOPMENT
+IS_PRODUCTION = ENV == "production"
+IS_TEST = ENV == "test"
+IS_LOCAL = not IS_PRODUCTION and not IS_TEST
 CONFIG = os.getenv("CONFIG")
 
 DB_URL = os.getenv("DB_URL")

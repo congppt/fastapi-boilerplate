@@ -5,10 +5,11 @@ from fastapi import HTTPException, Response, status
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.requests import Request
 
-logger = logging.getLogger(__name__)
 class LogMiddleware(BaseHTTPMiddleware):
     async def dispatch(self, request: Request, call_next):
         response = Response(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        client_ip = '127.0.0.1'
+        duration = 0.0
         try:
             start = time.perf_counter()
             client_ip = request.client.host
@@ -18,6 +19,6 @@ class LogMiddleware(BaseHTTPMiddleware):
             duration = end - start
         except Exception as e:
             if not isinstance(e, HTTPException):
-                logger.error(e)
+                logging.exception(msg=e, extra={'clientip': client_ip, 'duration': duration})
         finally:
             return response

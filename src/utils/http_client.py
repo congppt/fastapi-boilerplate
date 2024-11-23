@@ -1,8 +1,9 @@
+import logging
 from collections.abc import Callable
 from contextlib import asynccontextmanager
 from typing import Any, AsyncGenerator
 
-from httpx import AsyncClient, Request, HTTPStatusError, TimeoutException, Response
+from httpx import AsyncClient, Request, Response
 
 
 class HTTPClient(AsyncClient):
@@ -27,15 +28,6 @@ class HTTPClient(AsyncClient):
             callback_kwargs = callback_kwargs or {}
             callback_kwargs.update({"response": response})
             return callback(*callback_args, **callback_kwargs) if callback else response
-        except HTTPStatusError as e:
-            # logging
-            raise e
-        except TimeoutException as e:
-            # logging
-            raise e
-        except Exception as e:
-            # logging
-            raise e
         finally:
             if response: await response.aclose()
 
@@ -61,11 +53,5 @@ class HTTPClient(AsyncClient):
             callback_kwargs = callback_kwargs or {}
             callback_kwargs.update({"response": response})
             yield callback(response=response, *callback_args, **callback_kwargs) if callback else response
-        except HTTPStatusError as e:
-            # logging
-            raise e
-        except TimeoutException as e:
-            # logging
-            raise e
         finally:
             await response.aclose()

@@ -1,3 +1,4 @@
+import logging
 from contextlib import asynccontextmanager
 from typing import Sequence
 
@@ -6,15 +7,14 @@ from fastapi import FastAPI
 import auth
 import config
 import user
-import workplace
 from logger import setup_logger
 from middlewares import middlewares
 from constants.env import API_PREFIX
 from db import CACHE, DATABASE
 
-logger = setup_logger(__name__)
+setup_logger()
 async def astartup():
-    logger.info("Application startup")
+    logging.info("Application startup")
 
 
 async def ashutdown():
@@ -22,7 +22,7 @@ async def ashutdown():
     await CACHE.aclose()
     # close database connections
     await DATABASE.aclose_connections()
-    logger.info("Application shutdown")
+    logging.info("Application shutdown")
 
 @asynccontextmanager
 async def lifespan(_app: FastAPI):

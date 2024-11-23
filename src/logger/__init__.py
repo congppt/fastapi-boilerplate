@@ -1,4 +1,5 @@
-import logging.config
+import logging
+from logging import config
 from typing import Any
 
 import sentry_sdk
@@ -8,8 +9,10 @@ from sentry_sdk.integrations.starlette import StarletteIntegration
 from config import STARTUP_CONFIG
 from constants.env import SENTRY_DSN, ENV, IS_LOCAL
 from logger.handler import AsyncErrorHandler
+from services import discord
 
-def setup_logger(name: str = "app"):
+
+def setup_logger():
     sentry_config: dict[str, Any] = STARTUP_CONFIG.get(section='sentry')
     sentry_sdk.init(dsn=SENTRY_DSN,
                     environment=ENV,
@@ -20,6 +23,7 @@ def setup_logger(name: str = "app"):
 
     # Logger Configuration
     logging_config: dict[str, Any] = STARTUP_CONFIG.get(section='logging')
-    logging.config.dictConfig(logging_config)
-    logger = logging.getLogger(name)
-    return logger
+    logging.config.dictConfig(config=logging_config)
+
+async def alog_discord(log_entry: str):
+    await discord.asend_notification(message=f"`{ENV}` {log_entry}")

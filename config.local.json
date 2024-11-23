@@ -28,20 +28,13 @@
         "backupCount": 3,
         "encoding": "utf8"
       },
-      "error_handler": {
-        "class": "logger.handler.AsyncErrorHandler",
-        "level": "ERROR",
-        "formatter": "default",
-        "funcs": ["services.discord.asend_notification"]
-      }
     },
     "loggers": {
       "": {
         "level": "DEBUG",
         "handlers": [
           "console",
-          "file",
-          "error_handler"
+          "file"
         ]
       }
     }

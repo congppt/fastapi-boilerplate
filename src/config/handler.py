@@ -1,8 +1,10 @@
+import logging
 from typing import Any, Type
 
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from constants.env import ENV
 from db import aget_cache
 from db.models.system import SystemConfig
 from utils.parser import parse
@@ -24,10 +26,21 @@ async def aget_config(key: str, db: AsyncSession, model: Type[Any] = None) -> An
     return model(**value) if model else value
 
 class StartupConfig:
-    def __init__(self, path: str):
+    """
+    Load app config from .json file
+    """
+    def __init__(self, filename: str):
         self._cache: dict[tuple[str, Any], Any] = {}
+        path = filename + '.json'
         with open(path, 'r') as file:
             self._config: dict = json_deserialize(file.read())
+        try:
+            ext_path = filename + f'{ENV}' + '.json'
+            with open(ext_path, 'r') as file:
+                override_config: dict = json_deserialize(file.read())
+                self._config.update(override_config)
+        except FileNotFoundError:
+            logging.info('Specific environment config was not given')
 
     def get(self, section: str, model: Type[Any] = None) -> Any:
         """
