@@ -1,7 +1,8 @@
 fastapi
 uvicorn
-pydantic
+pydantic[email,dotenv]
 pydantic-extra-types
+phonenumbers
 sqlalchemy[asyncio]
 asyncpg
 alembic

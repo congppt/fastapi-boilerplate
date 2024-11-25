@@ -12,7 +12,7 @@ class FormatterConfig(BaseModel):
 class FilterConfig(BaseModel):
     name: str = ''
 class HandlerConfig(BaseModel):
-    class_: Annotated[str, Field(alias="class")]
+    class_: str = Field(alias="class")
     level: str | None
     formatter: str | None
     filters: tuple[str]

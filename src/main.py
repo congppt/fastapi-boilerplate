@@ -39,11 +39,15 @@ for middleware in middlewares:
     else:
         app.add_middleware(middleware)
 
-routers = [auth.router, user.router, config.router, workplace.router]
+routers = [auth.router, user.router, config.router]
 for router in routers:
     app.include_router(router, prefix=f"/{API_PREFIX}")
 
 
-@app.get("/health-check")
-async def health_check():
+@app.get("/health-check", summary="Health check")
+def health_check():
     return "App is running"
+
+@app.get("/exception", summary="Raise exception")
+def raise_exception():
+    raise ValueError("Something went wrong")

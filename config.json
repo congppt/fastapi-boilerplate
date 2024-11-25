@@ -1,7 +1,7 @@
 {
   "discord": {
     "base_url": "https://discord.com/api/",
-    "notification_path": "webhooks/1286365917332246558/Quvl1pipifkTw5e-SpfA6oNvSuPt67_dRoarGP0YLLr33yKLWEarhJlXXvBrYPl1FEpf"
+    "notification_path": "webhooks/1310499600293167135/lwK0qCSRXee7LYJla8Tv9QRoDHUmnKZkESV6O63rJUl3m6zJt9XMWK7VcHP9HzUGK3Ht"
   },
   "sentry": {
     "traces_sample_rate": 0.0,
@@ -10,26 +10,23 @@
   },
   "logging": {
     "version": 1,
-    "disable_existing_loggers": false,
+    "disable_existing_loggers": true,
     "formatters": {
-      "default": {
-        "format": "%(asctime)s - %(levelname)-8s - %(message)s"
-      },
-      "exception": {
+      "verbose": {
         "format": "%(asctime)s - %(levelname)-8s [IP: %(clientip)s] [Duration: %(duration).2fs] - %(message)s"
       }
     },
     "handlers": {
       "console": {
         "class": "logging.StreamHandler",
-        "level": "DEBUG",
-        "formatter": "default",
+        "level": "INFO",
+        "formatter": "verbose",
         "stream": "ext://sys.stdout"
       },
       "file": {
         "class": "pip._internal.utils.logging.BetterRotatingFileHandler",
         "level": "INFO",
-        "formatter": "default",
+        "formatter": "verbose",
         "filename": "logs/app.log",
         "maxBytes": 5242880,
         "backupCount": 3,
@@ -38,7 +35,7 @@
       "error_handler": {
         "class": "logger.handler.AsyncErrorHandler",
         "level": "ERROR",
-        "formatter": "exception",
+        "formatter": "verbose",
         "funcs": ["logger.alog_discord"]
       }
     },
@@ -49,7 +46,8 @@
           "console",
           "file",
           "error_handler"
-        ]
+        ],
+        "filters": []
       }
     }
   }

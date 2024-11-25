@@ -13,10 +13,10 @@ class EmailServer(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
 class SentryConfig(BaseModel):
-    traces_sample_rate: Annotated[float, Field(ge=0.0, le=1.0)]
-    sample_rate: Annotated[float, Field(ge=0.0, le=1.0)]
-    profiles_sample_rate: Annotated[float, Field(ge=0.0, le=1.0)]
+    traces_sample_rate: float = Field(ge=0.0, le=1.0)
+    sample_rate: float = Field(ge=0.0, le=1.0)
+    profiles_sample_rate: float = Field(ge=0.0, le=1.0)
 
 class DiscordConfig(BaseModel):
-    base_url: Annotated[str, Field()]
-    notification_path: Annotated[str, Field()]
+    base_url: str = Field(...)
+    notification_path: str = Field(...)
