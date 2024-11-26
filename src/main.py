@@ -14,7 +14,7 @@ from db import CACHE, DATABASE
 
 async def astartup():
     logger.setup()
-    logger.log(msg="----------------Application start-------------------", duration=duration)
+    logger.log(msg="----------------Application start-------------------")
 
 async def ashutdown():
     # close cache connections

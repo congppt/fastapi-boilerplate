@@ -17,7 +17,7 @@ def __create_token(payload: dict, secret: str, exp_after: timedelta) -> str:
     :param exp_after: token's lifetime in minutes
     """
     exp = datetime.now() + exp_after
-    payload.update({"exp": exp})
+    payload.update(m={"exp": exp})
     return jwt.encode(payload=payload, key=secret, algorithm=AUTH_ALGO, json_encoder=CustomJSONEncoder)
 
 async def aauthenticate(request: AuthRequest, db: AsyncSession) -> AuthResponse:

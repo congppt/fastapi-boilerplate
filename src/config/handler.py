@@ -22,7 +22,7 @@ async def aget_config(key: str, db: AsyncSession, model: Type[Any] = None) -> An
     value = await aget_cache(key=key, model=model)
     if not value:
         query = select(SystemConfig.value).where(SystemConfig.key == key)
-        value = await db.scalar(query)
+        value = await db.scalar(statement=query)
     return model(**value) if model else value
 
 class StartupConfig:
@@ -32,15 +32,15 @@ class StartupConfig:
     def __init__(self, filename: str):
         self._cache: dict[tuple[str, Any], Any] = {}
         path = filename + '.json'
-        with open(path, 'r') as file:
-            self._config: dict = json_deserialize(file.read())
+        with open(file=path, mode='r') as file:
+            self._config: dict = json_deserialize(json_str=file.read())
         try:
             ext_path = filename + f'{ENV}' + '.json'
-            with open(ext_path, 'r') as file:
-                override_config: dict = json_deserialize(file.read())
-                self._config.update(override_config)
+            with open(file=ext_path, mode='r') as file:
+                override_config: dict = json_deserialize(json_str=file.read())
+                self._config.update(m=override_config)
         except FileNotFoundError:
-            logging.warning('Specific environment config was not given')
+            logging.warning(msg='Specific environment config was not given')
 
     def get(self, section: str, model: Type[Any] = None) -> Any:
         """

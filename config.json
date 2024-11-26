@@ -19,7 +19,7 @@
     "handlers": {
       "console": {
         "class": "logging.StreamHandler",
-        "level": "INFO",
+        "level": "DEBUG",
         "formatter": "default",
         "stream": "ext://sys.stdout"
       },

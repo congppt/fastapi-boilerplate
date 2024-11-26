@@ -14,7 +14,7 @@ from utils.formatters import format_exception
 
 def setup():
     """
-
+    Setup root logger
     """
     sentry_config: dict[str, Any] = STARTUP_CONFIG.get(section='sentry')
     sentry_sdk.init(dsn=SENTRY_DSN,
@@ -29,7 +29,7 @@ def setup():
 
 async def alog_discord(log_entry: str):
     """
-
+    Send log message to discord
     """
     await discord.asend_notification(message=f"`{ENV}` {log_entry}")
 
@@ -37,11 +37,16 @@ async def alog_discord(log_entry: str):
 
 def log(msg: object, level: int = logging.INFO, *args, **kwargs):
     """
-
+    Log message
+    :param msg: message to log
+    :param level: logging level
+    :param args: arguments for logging.log
+    :param kwargs: keyword arguments. If `duration` (number) keyword exist, append execution time to message.
+                   If `request` keyword exist, append keys & items of request to log request
     """
     if isinstance(msg, Exception):
         level = level or logging.ERROR
-        msg = format_exception(msg)
+        msg = format_exception(e=msg)
     adds_up = ""
     duration = kwargs.pop("duration", None)
     if duration:
@@ -51,4 +56,4 @@ def log(msg: object, level: int = logging.INFO, *args, **kwargs):
         for key, val in request.items():
             adds_up += f"{key.title()}: {val}\n"
     msg += adds_up
-    logging.log(level, msg, *args, **kwargs)
+    logging.log(level=level, msg=msg, *args, **kwargs)
