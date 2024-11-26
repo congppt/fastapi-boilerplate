@@ -1,5 +1,5 @@
 from pydantic import BaseModel, Field
-from typing import Any, Annotated, Literal
+from typing import Any, Literal
 
 
 class FormatterConfig(BaseModel):

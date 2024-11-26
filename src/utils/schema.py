@@ -13,7 +13,7 @@ class PagingRequest(BaseModel):
     index: NonNegativeInt
     model_config = ConfigDict(from_attributes=True)
 
-class QueryFilter(BaseModel):
+class QueryFilter(Generic[T], BaseModel):
     attribute: Annotated[str, Field(...)]
     values: conlist(Any, min_length=1, unique_items=True)
     options: Literal['IN', 'BETWEEN']
@@ -29,9 +29,12 @@ class QueryFilter(BaseModel):
         return v
 
     @model_validator(mode='after')
-    def options_validate(self):
+    def validate(self):
         if self.options is 'BETWEEN' and len(self.values) != 2:
             raise ValueError('BETWEEN filter only accepts 2 values')
+        attr = getattr(T, self.attribute, None)
+        if not attr or type(attr) not in FILTER_TYPES:
+            raise ValueError(f'{attr} is not a valid attribute')
 
 
 class QueryRequest(PagingRequest):

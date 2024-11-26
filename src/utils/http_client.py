@@ -1,4 +1,3 @@
-import logging
 from collections.abc import Callable
 from contextlib import asynccontextmanager
 from typing import Any, AsyncGenerator

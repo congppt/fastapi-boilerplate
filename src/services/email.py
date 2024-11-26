@@ -1,10 +1,10 @@
-import logging
 from email.message import EmailMessage
 from typing import Sequence, Literal
 
 from aiosmtplib import SMTP
 from fastapi import UploadFile
 
+import logger
 from config.handler import aget_config
 from constants.cache import EMAIL_SERVER
 from db import aget_db
@@ -30,7 +30,7 @@ async def send_email(body: str,
                     data = f.read()
                     filename = attachment.split("/")[-1]
             except FileNotFoundError:
-                logging.warning(f'{attachment} was not found')
+                logger.log(f'{attachment} was not found')
                 continue
         message.add_attachment(data, maintype="application", subtype="octet-stream", filename=filename)
     inline_images = inline_images or {}
@@ -44,7 +44,7 @@ async def send_email(body: str,
                     data = f.read()
                     ext = image.split(".")[-1]
             except FileNotFoundError:
-                logging.warning(f'{image} was not found.')
+                logger.log(f'{image} was not found.')
                 continue
         message.add_related(data, maintype="image",subtype=ext, cid=f"<{cid}>")
         if protocol == 'smtp':

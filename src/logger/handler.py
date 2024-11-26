@@ -1,6 +1,7 @@
 import asyncio
 import importlib
 import logging
+
 from typing import Callable, Any, Sequence
 
 
@@ -14,7 +15,8 @@ class AsyncErrorHandler(logging.Handler):
     def emit(self, record):
         log_entry = self.format(record)
         # Call the registered functions
-        asyncio.run(self._run_async_if_possible(log_entry))
+        if self._funcs:
+            asyncio.create_task(self._run_async_if_possible(log_entry))
 
     async def _run_async_if_possible(self, log_entry):
         """

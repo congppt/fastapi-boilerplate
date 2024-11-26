@@ -12,21 +12,21 @@
     "version": 1,
     "disable_existing_loggers": true,
     "formatters": {
-      "verbose": {
-        "format": "%(asctime)s - %(levelname)-8s [IP: %(clientip)s] [Duration: %(duration).2fs] - %(message)s"
+      "default": {
+        "format": "%(asctime)s - %(levelname)-8s - %(message)s"
       }
     },
     "handlers": {
       "console": {
         "class": "logging.StreamHandler",
         "level": "INFO",
-        "formatter": "verbose",
+        "formatter": "default",
         "stream": "ext://sys.stdout"
       },
       "file": {
         "class": "pip._internal.utils.logging.BetterRotatingFileHandler",
         "level": "INFO",
-        "formatter": "verbose",
+        "formatter": "default",
         "filename": "logs/app.log",
         "maxBytes": 5242880,
         "backupCount": 3,
@@ -35,7 +35,7 @@
       "error_handler": {
         "class": "logger.handler.AsyncErrorHandler",
         "level": "ERROR",
-        "formatter": "verbose",
+        "formatter": "default",
         "funcs": ["logger.alog_discord"]
       }
     },
@@ -46,8 +46,7 @@
           "console",
           "file",
           "error_handler"
-        ],
-        "filters": []
+        ]
       }
     }
   }

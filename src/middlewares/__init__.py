@@ -11,5 +11,5 @@ middlewares: tuple = (
         "allow_credentials": True,
     }),
     LogMiddleware,
-    (AuthenticationMiddleware, {"backend": AuthMiddleware()})
+    (AuthenticationMiddleware, {"backend": AuthMiddleware()}),
 )

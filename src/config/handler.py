@@ -40,7 +40,7 @@ class StartupConfig:
                 override_config: dict = json_deserialize(file.read())
                 self._config.update(override_config)
         except FileNotFoundError:
-            logging.info('Specific environment config was not given')
+            logging.warning('Specific environment config was not given')
 
     def get(self, section: str, model: Type[Any] = None) -> Any:
         """
