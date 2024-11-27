@@ -7,6 +7,7 @@ from sqlalchemy.ext.asyncio import (
     AsyncConnection,
     AsyncSession)
 
+
 class DatabaseSessionManager:
     def __init__(self, url: str, **engine_kwargs: Any) -> None:
         """
@@ -58,10 +59,3 @@ class DatabaseSessionManager:
         if not self._engine:
             raise ValueError("Database session manager is not initialized")
         return self._engine
-
-
-
-
-
-
-

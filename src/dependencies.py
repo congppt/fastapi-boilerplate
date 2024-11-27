@@ -1,7 +1,9 @@
+from typing import Annotated
+
 from fastapi import Depends, Request
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.sql.annotation import Annotated
 
+from db import aget_db
 from middlewares.auth import CurrentUser
 
 
@@ -13,6 +15,10 @@ def get_db(request: Request) -> AsyncSession:
     """
     return request.state.db
 
+
+Database = Annotated[AsyncSession, Depends(aget_db)]
+
+
 def get_current_user(request: Request) -> CurrentUser | None:
     """
     Get current user of request
@@ -20,5 +26,6 @@ def get_current_user(request: Request) -> CurrentUser | None:
     :return: Current user
     """
     return request.user
+
 
 Client = Annotated[CurrentUser, Depends(get_current_user)]

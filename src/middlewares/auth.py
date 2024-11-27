@@ -2,11 +2,11 @@ from typing import Any
 
 import jwt
 from fastapi import status, HTTPException
+from fastapi.requests import HTTPConnection
 from pydantic import BaseModel, ConfigDict
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from starlette.authentication import BaseUser, AuthenticationBackend, AuthCredentials, AuthenticationError
-from fastapi.requests import HTTPConnection
 
 from auth.schema import UserClaim
 from constants import AUTH_SCHEME, AUTH_ALGO, USER_CLAIM
@@ -45,7 +45,6 @@ def get_payload(token: str, secret: str) -> dict[str: Any]:
 class AuthMiddleware(AuthenticationBackend):
     async def authenticate(self, conn: HTTPConnection) -> tuple[AuthCredentials, BaseUser] | None:
         async for db in aget_db():
-            conn.state.db = db
             auth_header = conn.get('Authorization')
             if not auth_header:
                 return
