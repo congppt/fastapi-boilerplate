@@ -1,4 +1,6 @@
 import logging
+import os
+import sys
 from typing import Any, Type
 
 from sqlalchemy import select
@@ -31,16 +33,16 @@ class StartupConfig:
     """
     def __init__(self, filename: str):
         self._cache: dict[tuple[str, Any], Any] = {}
-        path = filename + '.json'
-        with open(file=path, mode='r') as file:
-            self._config: dict = json_deserialize(json_str=file.read())
-        try:
-            ext_path = filename + f'{ENV}' + '.json'
-            with open(file=ext_path, mode='r') as file:
-                override_config: dict = json_deserialize(json_str=file.read())
-                self._config.update(m=override_config)
-        except FileNotFoundError:
+        path = filename + f'.{ENV}' + '.json'
+        if not os.path.isfile(path):
             logging.warning(msg='Specific environment config was not given')
+            path = filename + '.json'
+        try:
+            with open(file=path, mode='r') as file:
+                self._config: dict = json_deserialize(json_str=file.read())
+        except FileNotFoundError:
+            logging.fatal(msg='App config was not given')
+            sys.exit(1)
 
     def get(self, section: str, model: Type[Any] = None) -> Any:
         """

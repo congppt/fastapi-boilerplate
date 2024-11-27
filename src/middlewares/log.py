@@ -23,7 +23,7 @@ class LogMiddleware(BaseHTTPMiddleware):
         except Exception as e:
             msg = e
             request_data = {
-                'client_ip': request.client.host,
+                'client': request.client.host,
                 'method': request.method,
                 'path': request.url.path,
                 'query': request.query_params,

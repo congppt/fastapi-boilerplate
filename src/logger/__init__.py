@@ -50,10 +50,10 @@ def log(msg: object, level: int = logging.INFO, *args, **kwargs):
     adds_up = ""
     duration = kwargs.pop("duration", None)
     if duration:
-        adds_up += f"\nDuration: {duration:.2f}s\n"
+        adds_up += f"\n**Duration**: {duration:.2f}s"
     request: dict[str, Any] | None = kwargs.pop("request", None)
     if request:
         for key, val in request.items():
-            adds_up += f"{key.title()}: {val}\n"
+            adds_up += f"\n{key.title():6}: {val}"
     msg += adds_up
     logging.log(level=level, msg=msg, *args, **kwargs)

@@ -29,7 +29,6 @@ async def aformat_html(file_path: str, filler: dict[str, str | int | float] = No
     return await template.render_async(filler)
 
 def format_exception(e: Exception, extract: Literal['trace', 'stack'] = 'trace'):
-    frames: StackSummary = StackSummary()
     if extract == 'trace':
         frames = traceback.extract_tb(e.__traceback__)
     else:
@@ -38,4 +37,4 @@ def format_exception(e: Exception, extract: Literal['trace', 'stack'] = 'trace')
                       if 'site-packages' not in frame.filename
                       and 'lib' not in frame.filename]
     last_frame = non_lib_frames[-1] if non_lib_frames else frames[-1]
-    return f"\n**Traceback**: {last_frame}\n**Exception**: {e}\n"
+    return f"\n**Traceback**:{frames.format_frame_summary(last_frame)}**Exception**: {e}"

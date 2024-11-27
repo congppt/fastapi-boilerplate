@@ -31,12 +31,6 @@
         "maxBytes": 5242880,
         "backupCount": 3,
         "encoding": "utf8"
-      },
-      "error_handler": {
-        "class": "logger.handler.AsyncErrorHandler",
-        "level": "ERROR",
-        "formatter": "default",
-        "funcs": ["logger.alog_discord"]
       }
     },
     "loggers": {
@@ -44,8 +38,7 @@
         "level": "DEBUG",
         "handlers": [
           "console",
-          "file",
-          "error_handler"
+          "file"
         ]
       }
     }
