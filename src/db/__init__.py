@@ -28,7 +28,7 @@ async def aget_db() -> AsyncGenerator[AsyncSession, None]:
 
 CACHE = CacheSessionManager(REDIS_URL)
 
-async def aget_cache(key: str, model: Type[Any] = None):
+async def aget_cache(key: str, model: Type[Any] = None) -> Any:
     """
         Get object from cache
         :param key: key used to store object

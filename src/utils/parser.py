@@ -35,6 +35,8 @@ def parse(value: Any, model: Type[Any], hook: Callable[[Any, Type[Any]], Any]) -
             return model(value)
         else:
             return model(**value)
+    if origin_type is dict:
+        return dict(value)
     # handle case when model is collection
     if origin_type in SUPPORTED_COLLECTIONS:
         if not isinstance(value, list):

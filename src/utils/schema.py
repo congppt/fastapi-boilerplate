@@ -1,8 +1,13 @@
 from datetime import datetime
 from typing import Sequence, TypeVar, Generic, Literal, Annotated, Any
 
-from pydantic import BaseModel, Field, ConfigDict, conlist, field_validator, model_validator
-from pydantic.v1 import PositiveInt, NonNegativeInt
+from pydantic import (BaseModel,
+                      Field,
+                      ConfigDict,
+                      field_validator,
+                      model_validator,
+                      PositiveInt,
+                      NonNegativeInt, conset)
 
 from utils import PRIMITIVES
 
@@ -13,9 +18,9 @@ class PagingRequest(BaseModel):
     index: NonNegativeInt
     model_config = ConfigDict(from_attributes=True)
 
-class QueryFilter(Generic[T], BaseModel):
+class QueryFilter(BaseModel, Generic[T]):
     attribute: Annotated[str, Field(...)]
-    values: conlist(Any, min_length=1, unique_items=True)
+    values: conset(Any, min_length=1)
     options: Literal['IN', 'BETWEEN']
     negate: bool
 
@@ -30,7 +35,7 @@ class QueryFilter(Generic[T], BaseModel):
 
     @model_validator(mode='after')
     def validate(self):
-        if self.options is 'BETWEEN' and len(self.values) != 2:
+        if self.options == 'BETWEEN' and len(self.values) != 2:
             raise ValueError('BETWEEN filter only accepts 2 values')
         attr = getattr(T, self.attribute, None)
         if not attr or type(attr) not in FILTER_TYPES:
@@ -40,9 +45,9 @@ class QueryFilter(Generic[T], BaseModel):
 class QueryRequest(PagingRequest):
     filters: str
 
-class PagingResponse(Generic[T]):
+class PagingResponse:
     def __init__(self,
-                 items: Sequence[T],
+                 items: Sequence,
                  total_pages: int,
                  has_next: bool):
         self.items = items

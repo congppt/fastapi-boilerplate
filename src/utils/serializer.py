@@ -1,17 +1,24 @@
 import json
-from typing import Type, Any, get_origin
+from typing import Type, Any
 
 from pydantic import BaseModel
 
-from utils import PRIMITIVES
 from utils.parser import parse
+
+try:
+    from sqlalchemy.engine.row import BaseRow
+except ImportError:
+    BaseRow = None
 
 
 class CustomJSONEncoder(json.JSONEncoder):
     def default(self, obj) -> Any:
         if isinstance(obj, BaseModel):
             return obj.model_dump()
+        if isinstance(obj, BaseRow):
+            return dict(obj)
         return super().default(obj)
+
 
 def json_serialize(obj: Any) -> str:
     """
@@ -32,18 +39,11 @@ def json_deserialize(json_str: str, model: Type[Any] = None) -> Any:
         # return dict/primitive if model not defined
         if model is None:
             return value
-
-        origin_type = get_origin(model)
-        # handle case when model is primitive/custom
-        if origin_type is None:
-            if model in PRIMITIVES:
-                return model(value)
-            else:
-                return model(**value)
         return parse(value=value, model=model, hook=json_parse)
     except json.JSONDecodeError:
         # fallback to current value
         return json_str
 
-def json_parse(value_: Any, model_: Type[Any]) -> Any:
-    return json_deserialize(json_serialize(value_), model_)
+
+def json_parse(value: Any, model: Type[Any]) -> Any:
+    return json_deserialize(json_str=json_serialize(value), model=model)

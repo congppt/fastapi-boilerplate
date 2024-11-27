@@ -21,7 +21,9 @@ class CacheSessionManager:
         :return: deserialized object
         """
         value = await self._redis.get(name=key)
-        return json_deserialize(json_str=value, model=model)
+        if value:
+            return json_deserialize(json_str=value, model=model)
+        return None
 
     async def aset(self, key: str, value: Any, expire: int | timedelta = None) -> None:
         """
