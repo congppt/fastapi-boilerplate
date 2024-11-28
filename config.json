@@ -24,19 +24,22 @@
         "stream": "ext://sys.stdout"
       },
       "file": {
-        "class": "pip._internal.utils.logging.BetterRotatingFileHandler",
+        "class": "logging.handlers.TimedRotatingFileHandler",
         "level": "INFO",
         "formatter": "default",
-        "filename": "logs/app.log",
-        "maxBytes": 5242880,
-        "backupCount": 3,
-        "encoding": "utf8"
+        "encoding": "utf8",
+        "filename": "logs/app-%.Y-%m-%d.json",
+        "when": "midnight",
+        "interval": 1,
+        "backupCount": 7
       },
       "error_handler": {
         "class": "logger.handler.AsyncErrorHandler",
         "level": "ERROR",
         "formatter": "default",
-        "funcs": ["logger.alog_discord"]
+        "funcs": [
+          "logger.alog_discord"
+        ]
       }
     },
     "loggers": {

@@ -35,7 +35,7 @@ async def alog_discord(log_entry: str):
 
 
 
-def log(msg: object, level: int = logging.INFO, *args, **kwargs):
+def log(msg: object, level: int = None, *args, **kwargs):
     """
     Log message
     :param msg: message to log
@@ -47,6 +47,12 @@ def log(msg: object, level: int = logging.INFO, *args, **kwargs):
     if isinstance(msg, Exception):
         level = level or logging.ERROR
         msg = format_exception(e=msg)
+    elif isinstance(msg, tuple):
+        level = level or logging.ERROR
+        exc_msg = format_exception(msg[1])
+        msg = msg[0] + exc_msg
+    else:
+        level = level or logging.INFO
     adds_up = ""
     duration = kwargs.pop("duration", None)
     if duration:
