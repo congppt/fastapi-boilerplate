@@ -1,32 +1,14 @@
 import json
-from datetime import datetime
 from typing import Type, Any
 
-from pydantic import BaseModel
+from fastapi.encoders import jsonable_encoder
 
 from utils.parser import parse
-
-try:
-    from sqlalchemy.orm import DeclarativeMeta, DeclarativeBase, class_mapper
-    from sqlalchemy.engine.row import BaseRow
-except ImportError:
-    BaseRow = None
-    DeclarativeMeta = None
-    DeclarativeBase = None
 
 
 class CustomJSONEncoder(json.JSONEncoder):
     def default(self, obj) -> Any:
-        if isinstance(obj, datetime):
-            return obj.isoformat()
-        if isinstance(obj, BaseModel):
-            return obj.model_dump()
-        if DeclarativeBase and isinstance(obj, DeclarativeBase):
-            # Convert SQLAlchemy model instance to dictionary
-            return {column.name: getattr(obj, column.name) for column in class_mapper(obj.__class__).columns}
-        if BaseRow and isinstance(obj, BaseRow):
-            return dict(obj)
-        return super().default(obj)
+        return jsonable_encoder(obj=obj)
 
 
 def json_serialize(obj: Any) -> str:
