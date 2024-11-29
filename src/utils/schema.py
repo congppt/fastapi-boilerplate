@@ -13,10 +13,13 @@ from utils import PRIMITIVES
 
 T = TypeVar('T')
 FILTER_TYPES = (*PRIMITIVES, datetime)
+
+
 class PagingRequest(BaseModel):
     size: PositiveInt
     index: NonNegativeInt
     model_config = ConfigDict(from_attributes=True)
+
 
 class QueryFilter(BaseModel, Generic[T]):
     attribute: Annotated[str, Field(...)]
@@ -25,7 +28,7 @@ class QueryFilter(BaseModel, Generic[T]):
     negate: bool
 
     @field_validator('values')
-    def values_validate(cls, v):    # noqa
+    def values_validate(cls, v):  # noqa
         typ = type(v[0])
         if typ not in FILTER_TYPES:
             raise ValueError(f'{typ} is not a valid filter type')
@@ -45,11 +48,7 @@ class QueryFilter(BaseModel, Generic[T]):
 class QueryRequest(PagingRequest):
     filters: str
 
-class PagingResponse:
-    def __init__(self,
-                 items: Sequence,
-                 total_pages: int,
-                 has_next: bool):
-        self.items = items
-        self.total_pages = total_pages
-        self.has_next = has_next
+
+class PagingResponse(BaseModel):
+    items: Sequence
+    total_pages: NonNegativeInt
