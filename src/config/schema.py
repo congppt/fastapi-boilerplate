@@ -32,10 +32,8 @@ class AuthSettings(BaseModel):
 
 class MinIOSettings(BaseModel):
     host: str = Field(...)
-    bucket: str = Field(...)
     access: str = Field(...)
     secret: str = Field(...)
-    public_endpoint: str = Field(...)
 
 
 class AppSettings(BaseSettings):
@@ -46,12 +44,12 @@ class AppSettings(BaseSettings):
     api_prefix: str | None
     encrypt_key: str = Field(..., min_length=32)
     proxy: str | None
+    auth: AuthSettings
+    smtp: SMTPSettings
+    minio: MinIOSettings
+    logging: dict
     sentry: SentrySettings
     discord: DiscordSettings
-    auth: AuthSettings
-    minio: MinIOSettings
-    smtp: SMTPSettings
-    logging: dict
 
     @classmethod
     def settings_customise_sources(
