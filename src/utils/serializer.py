@@ -11,7 +11,7 @@ class CustomJSONEncoder(json.JSONEncoder):
         return jsonable_encoder(obj=obj)
 
 
-def json_serialize(obj: Any) -> str:
+def json_serialize(obj: Any):
     """
     Serialize an oject into json string
     :param obj: object to serialize"""
@@ -36,5 +36,5 @@ def json_deserialize(json_str: str, model: Type[Any] = None) -> Any:
         return json_str
 
 
-def json_parse(value: Any, model: Type[Any]) -> Any:
+def json_parse(value: Any, model: Type[Any]):
     return json_deserialize(json_str=json_serialize(value), model=model)

@@ -7,13 +7,13 @@ from utils.serializer import json_deserialize, json_serialize
 
 
 class CacheSessionManager:
-    def __init__(self, url: str) -> None:
+    def __init__(self, url: str):
         self._redis = StrictRedis.from_url(url)
-    async def aclose(self) -> None:
+    async def aclose(self):
         """Close all connections including in-use connections."""
         await self._redis.aclose()
 
-    async def aget(self, key: str, model: Type[Any] = None) -> Any:
+    async def aget(self, key: str, model: Type[Any] = None):
         """
         Get object from cache
         :param key: key used to store object
@@ -25,7 +25,7 @@ class CacheSessionManager:
             return json_deserialize(json_str=value, model=model)
         return None
 
-    async def aset(self, key: str, value: Any, expire: int | timedelta = None) -> None:
+    async def aset(self, key: str, value: Any, expire: int | timedelta = None):
         """
         Store object in cache
         :param key: key used to store

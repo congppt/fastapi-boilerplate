@@ -22,11 +22,11 @@ class AsyncErrorHandler(logging.Handler):
 
 
     @staticmethod
-    def _resolve_funcs(funcs: list[Callable[[str], Any] | str]) -> list[Callable[[str], Any]]:
-        callables = []
+    def _resolve_funcs(funcs: list[Callable[[str], Any] | str]):
+        callables: list[Callable[[str], Any]] = []
         for func_name in funcs:
             if isinstance(func_name, str):
-                module_name, func_name = func_name.rsplit('.', 1)
+                module_name, func_name = func_name.rsplit(sep='.',maxsplit=1)
                 module = importlib.import_module(module_name)
                 callables.append(getattr(module, func_name))
             else:

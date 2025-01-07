@@ -4,14 +4,14 @@ from typing import Type, Any
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from constants.env import DB_URL, REDIS_URL
+from config import APP_SETTINGS
 from utils.serializer import json_serialize
 from db.cache import CacheSessionManager
 from db.database import DatabaseSessionManager
 from db.models.user import *
 
 DATABASE = DatabaseSessionManager(
-    url=DB_URL,
+    url=APP_SETTINGS.postgres_dsn,
     pool_size=5,
     max_overflow=10,  # max_overflow + pool_size = max size = 15
     pool_timeout=30,
@@ -19,16 +19,16 @@ DATABASE = DatabaseSessionManager(
     pool_pre_ping=True,  # Phát hiện và loại bỏ kết nối chết,
     json_serializer=json_serialize)
 
-async def aget_db() -> AsyncGenerator[AsyncSession, None]:
+async def aget_db():
     """Retrieve a database session"""
     async with DATABASE.aget_session() as session:
         yield session
 
 
 
-CACHE = CacheSessionManager(REDIS_URL)
+CACHE = CacheSessionManager(APP_SETTINGS.redis_dsn)
 
-async def aget_cache(key: str, model: Type[Any] = None) -> Any:
+async def aget_cache(key: str, model: Type[Any] = None):
     """
         Get object from cache
         :param key: key used to store object

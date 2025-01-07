@@ -1,27 +1,31 @@
+#web
 fastapi[standard]
+starlette
 uvicorn
-pydantic[email,dotenv]
+#data modeling & validation
+pydantic[email]
 pydantic-settings
 pydantic-extra-types
 phonenumbers
+#database
 sqlalchemy[asyncio]
 asyncpg
 alembic
-#background jobs
-apscheduler
-#celery
-#apache-airflow
 redis
-bcrypt
-pyjwt[crypto]
+#excel
 openpyxl
 #blob storage
 minio
-#boto3
+#data struct
 pandas
 python-dotenv
+#api client
 httpx
+#authN & authZ
+pyjwt[crypto]
+bcrypt
 cryptography
+#logging
 sentry-sdk[fastapi]
-starlette
+#email
 aiosmtplib

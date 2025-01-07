@@ -1,7 +1,6 @@
 from fastapi import APIRouter
 
-from config.handler import StartupConfig
-from constants.env import CONFIG
+from config.schema import AppSettings
 
 router = APIRouter(prefix='/config', tags=['config'])
-STARTUP_CONFIG = StartupConfig(CONFIG)
+APP_SETTINGS = AppSettings()

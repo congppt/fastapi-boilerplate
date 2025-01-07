@@ -1,4 +1,3 @@
-import time
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
@@ -7,22 +6,19 @@ import auth
 import config
 import user
 import logger
-from background_job import SCHEDULER
+from config import APP_SETTINGS
 from middlewares import middlewares
-from constants.env import API_PREFIX
 from db import CACHE, DATABASE
 
 
 async def astartup():
     logger.setup()
-    SCHEDULER.start()
     logger.log(msg="----------------Application start-------------------")
 
 async def ashutdown():
     # close cache connections
     await CACHE.aclose()
     # shutdown job scheduler
-    SCHEDULER.shutdown()
     # close database connections
     await DATABASE.aclose_connections()
     logger.log(msg="---------------Application shutdown------------------")
@@ -43,7 +39,7 @@ for middleware in middlewares:
 
 routers = [auth.router, user.router, config.router]
 for router in routers:
-    app.include_router(router, prefix=f"/{API_PREFIX}")
+    app.include_router(router, prefix=f"/{APP_SETTINGS.api_prefix}")
 
 
 @app.get("/health-check", summary="Health check")

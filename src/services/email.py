@@ -6,8 +6,7 @@ from aiosmtplib import SMTP
 from fastapi import UploadFile
 
 import logger
-from config.handler import aget_config
-from constants.cache import EMAIL_SERVER
+from config import APP_SETTINGS
 from db import aget_db
 
 
@@ -17,7 +16,7 @@ async def send_email(body: str,
                      subject: str,
                      attachments: Sequence[UploadFile | str] = None,
                      inline_images: dict[str, UploadFile | str] = None,
-                     protocol: Literal['smtp', 'http'] = 'smtp') -> None:
+                     protocol: Literal['smtp', 'http'] = 'smtp'):
     message = EmailMessage()
     message.add_header('Subject', subject)
     message.set_content(body, subtype='html')
@@ -50,8 +49,7 @@ async def send_email(body: str,
         message.add_related(data, maintype="image",subtype=ext, cid=f"<{cid}>")
         if protocol == 'smtp':
             async for db in aget_db():
-                email_server: dict = await aget_config(EMAIL_SERVER, db=db)
-                smtp = SMTP(**email_server)
+                smtp = SMTP(**APP_SETTINGS.smtp)
                 await smtp.send_message(message, sender=sender, recipients=recipients)
         elif protocol == 'http':
             pass

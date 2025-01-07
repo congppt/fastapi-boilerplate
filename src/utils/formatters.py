@@ -1,13 +1,12 @@
 import os
 import traceback
 from decimal import Decimal
-from traceback import StackSummary
 from typing import Literal
 
 from starlette.templating import Jinja2Templates
 
 
-def format_vnd(value: int | float | Decimal) -> str:
+def format_vnd(value: int | float | Decimal):
     """
     Format number to VNĐ style
     :param value: number to format
@@ -15,7 +14,7 @@ def format_vnd(value: int | float | Decimal) -> str:
     """
     return "{:,.0f}".format(value).replace(',', '.')
 
-async def aformat_html(file_path: str, filler: dict[str, str | int | float] = None) -> str:
+async def aformat_html(file_path: str, filler: dict[str, str | int | float] = None):
     """
     Format html file as string and return its content
     :param file_path: html file path

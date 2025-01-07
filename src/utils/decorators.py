@@ -2,7 +2,7 @@ import asyncio
 from functools import wraps
 from typing import Callable, Any
 
-from constants.env import IS_LOCAL
+from config import APP_SETTINGS
 
 
 def extend(cls) -> Callable:
@@ -31,7 +31,7 @@ def pre_run(*funcs: Callable[[], Any]) -> Callable:
         def wrapper(*args, **kwargs):
             for func in funcs:
                 if asyncio.iscoroutinefunction(func):
-                    asyncio.run(main=func(), debug=IS_LOCAL)
+                    asyncio.run(main=func(), debug=APP_SETTINGS.of_local_env)
                 else:
                     func()
                 return function(*args, **kwargs)

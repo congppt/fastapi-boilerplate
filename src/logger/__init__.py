@@ -5,8 +5,7 @@ from typing import Any
 
 import sentry_sdk
 
-from config import STARTUP_CONFIG
-from constants.env import SENTRY_DSN, ENV, IS_LOCAL
+from config import APP_SETTINGS
 from logger.handler import AsyncErrorHandler
 from services import discord
 from utils.formatters import format_exception
@@ -16,22 +15,20 @@ def setup():
     """
     Setup root logger
     """
-    sentry_config: dict[str, Any] = STARTUP_CONFIG.get(section='sentry')
-    sentry_sdk.init(dsn=SENTRY_DSN,
-                    environment=ENV,
+    sentry_config: dict[str, Any] = APP_SETTINGS.sentry.model_dump()
+    sentry_sdk.init(environment=APP_SETTINGS.env,
                     # debug=IS_LOCAL,
                     **sentry_config)
 
     # Logger Configuration
-    logging_config: dict[str, Any] = STARTUP_CONFIG.get(section='logging')
-    logging.config.dictConfig(config=logging_config)
+    logging.config.dictConfig(config=APP_SETTINGS.logging)
 
 
-async def alog_discord(log_entry: str):
+async def anotify(log_entry: str):
     """
-    Send log message to discord
+    Send log message as notification
     """
-    await discord.asend_notification(message=f"`{ENV}` {log_entry}")
+    await discord.asend_notification(message=f"`{APP_SETTINGS.env}` {log_entry}")
 
 
 

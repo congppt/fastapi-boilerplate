@@ -2,7 +2,7 @@ import random
 import string
 
 
-def random_otp(length: int) -> str:
+def random_otp(length: int):
     """
     Randomize OTP (digits only)
     :param length: length of output OTP
@@ -12,7 +12,7 @@ def random_otp(length: int) -> str:
     return ''.join(random.choices(string.digits, k=length))
 
 
-def random_str(length: int) -> str:
+def random_str(length: int):
     """
     Randomize a string (Alphabet + digits)
     :param length: length of output string

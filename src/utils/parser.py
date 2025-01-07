@@ -20,7 +20,7 @@ def union_parse(value: Any, types: tuple, hook: Callable[[Any, Type[Any]], Any])
     raise TypeError(f"{value} cannot be deserialized into any type in {types}")
 
 
-def parse(value: Any, model: Type[Any], hook: Callable[[Any, Type[Any]], Any]) -> Any:
+def parse(value: Any, model: Type[Any], hook: Callable[[Any, Type[Any]], Any]):
     """
     Parse value into object of given type
     :param value: original value

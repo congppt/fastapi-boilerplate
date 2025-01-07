@@ -1,5 +1,3 @@
-from typing import Any
-
 import jwt
 from fastapi import status, HTTPException
 from fastapi.requests import HTTPConnection
@@ -8,10 +6,10 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from starlette.authentication import BaseUser, AuthenticationBackend, AuthCredentials, AuthenticationError
 
+from auth.handler import AUTH_SETTINGS
 from auth.schema import UserClaim
 from constants import AUTH_SCHEME, AUTH_ALGO, USER_CLAIM
 from constants.cache import CURRENT_USER_KEY
-from constants.env import ACCESS_SECRET
 from db import aget_db, aget_cache
 from db.models.user import User
 
@@ -22,11 +20,11 @@ class CurrentUser(BaseModel, BaseUser):
     model_config = ConfigDict(from_attributes=True)
 
     @property
-    def is_authenticated(self) -> bool:
+    def is_authenticated(self):
         return self.id is not None
 
 
-def get_payload(token: str, secret: str) -> dict[str: Any]:
+def get_payload(token: str, secret: str):
     """
     Retrieve payload from JWT
     :param token: JWT token
@@ -43,7 +41,7 @@ def get_payload(token: str, secret: str) -> dict[str: Any]:
 
 
 class AuthMiddleware(AuthenticationBackend):
-    async def authenticate(self, conn: HTTPConnection) -> tuple[AuthCredentials, BaseUser] | None:
+    async def authenticate(self, conn: HTTPConnection):
         async for db in aget_db():
             auth_header = conn.get('Authorization')
             if not auth_header:
@@ -56,20 +54,20 @@ class AuthMiddleware(AuthenticationBackend):
 
             return AuthCredentials(['authenticated']), user
 
-    async def aget_current_user(self, token: str, db: AsyncSession) -> CurrentUser | None:
+    async def aget_current_user(self, token: str, db: AsyncSession):
         """
         Retrieve user info if authorization data is valid
         :param token: Token used for authentication
         :param db: Database session
         :return: Current user
         """
-        payload = get_payload(token=token, secret=ACCESS_SECRET)
+        payload = get_payload(token=token, secret=AUTH_SETTINGS.access_secret)
         user_claim = UserClaim(**payload.get(USER_CLAIM))
         user = await self.aget_active_user(user_id=user_claim.id, db=db)
         return user
 
     @staticmethod
-    async def aget_active_user(user_id: int, db: AsyncSession) -> CurrentUser:
+    async def aget_active_user(user_id: int, db: AsyncSession):
         """
         Retrieve user info if user is active
         :param user_id: User identifier
@@ -90,5 +88,5 @@ class AuthMiddleware(AuthenticationBackend):
         return current_user
 
     @staticmethod
-    async def acheck_permission(user: CurrentUser | None) -> None:
+    async def acheck_permission(user: CurrentUser | None):
         pass

@@ -1,10 +1,10 @@
 from bcrypt import hashpw, gensalt, checkpw
 from cryptography.fernet import Fernet
 
-from constants.env import ENCRYPT_KEY
+from config import APP_SETTINGS
 
 
-def hash_str(value: str | bytes, to_str = False) -> bytes:
+def hash_str(value: str | bytes, to_str=False):
     """
     Hash original string/bytes
     :param value: original string
@@ -15,7 +15,8 @@ def hash_str(value: str | bytes, to_str = False) -> bytes:
     result = hashpw(value, gensalt())
     return result.decode() if to_str else result
 
-def match_original(target: str | bytes, source: bytes) -> bool:
+
+def match_original(target: str | bytes, source: bytes):
     """
     Check if given string is origin of hashed bytes
     :param target: given string/bytes
@@ -25,9 +26,11 @@ def match_original(target: str | bytes, source: bytes) -> bool:
     target: bytes = target.encode() if isinstance(target, str) else target
     return checkpw(target, source)
 
-__fernet = Fernet(ENCRYPT_KEY)
 
-def encrypt(origin: str | bytes, to_str = False) -> bytes | str:
+__fernet = Fernet(APP_SETTINGS.encrypt_key)
+
+
+def encrypt(origin: str | bytes, to_str=False):
     """
     Encrypt given string to bytes
     :param origin: original string
@@ -38,7 +41,8 @@ def encrypt(origin: str | bytes, to_str = False) -> bytes | str:
     result = __fernet.encrypt(origin)
     return result.decode() if to_str else result
 
-def decrypt(encrypted: str | bytes, to_str = True) -> bytes | str:
+
+def decrypt(encrypted: str | bytes, to_str=True):
     """
     Decrypt given string to original bytes
     :param encrypted: encrypted string
