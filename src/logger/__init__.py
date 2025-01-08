@@ -6,31 +6,42 @@ from typing import Any
 import sentry_sdk
 
 from config import APP_SETTINGS
+from constants import REQUEST_TIMEOUT
 from logger.handler import AsyncErrorHandler
-from services import discord
+from services.discord import DiscordAPI
 from utils.formatters import format_exception
 
-
+NOTIFY_CHANNELS = []
 def setup():
     """
-    Setup root logger
+    Setup logging services
     """
-    sentry_config: dict[str, Any] = APP_SETTINGS.sentry.model_dump()
-    sentry_sdk.init(environment=APP_SETTINGS.env,
-                    # debug=IS_LOCAL,
-                    **sentry_config)
 
+    if APP_SETTINGS.sentry:
+        sentry_config: dict[str, Any] = APP_SETTINGS.sentry.model_dump()
+        sentry_sdk.init(environment=APP_SETTINGS.env,
+                        # debug=IS_LOCAL,
+                        **sentry_config)
+    if APP_SETTINGS.discord:
+        NOTIFY_CHANNELS.append(
+            DiscordAPI(
+                base_url=APP_SETTINGS.discord.base_url,
+                timeout=REQUEST_TIMEOUT,
+                proxy=APP_SETTINGS.proxy,
+                verify=False
+            )
+        )
     # Logger Configuration
     logging.config.dictConfig(config=APP_SETTINGS.logging)
 
 
-async def anotify(log_entry: str):
+async def aomninotify(log_entry: str):
     """
     Send log message as notification
     """
-    await discord.asend_notification(message=f"`{APP_SETTINGS.env}` {log_entry}")
-
-
+    for channel in NOTIFY_CHANNELS:
+        if isinstance(channel, DiscordAPI):
+            await channel.asend_bot_message(log_entry, APP_SETTINGS.discord.chatbot_hook)
 
 def log(msg: object, level: int = None, *args, **kwargs):
     """

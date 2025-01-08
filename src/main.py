@@ -7,6 +7,7 @@ import config
 import user
 import logger
 from config import APP_SETTINGS
+from logger import NOTIFY_CHANNELS
 from middlewares import middlewares
 from db import CACHE, DATABASE
 
@@ -22,6 +23,7 @@ async def ashutdown():
     # close database connections
     await DATABASE.aclose_connections()
     logger.log(msg="---------------Application shutdown------------------")
+    [channel.aclose() for channel in NOTIFY_CHANNELS]
 
 @asynccontextmanager
 async def lifespan(_app: FastAPI):

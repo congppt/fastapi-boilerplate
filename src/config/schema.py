@@ -20,7 +20,7 @@ class SentrySettings(BaseModel):
 
 class DiscordSettings(BaseModel):
     base_url: str = Field(...)
-    notification_path: str = Field(...)
+    chatbot_hook: str = Field(...)
 
 
 class AuthSettings(BaseModel):
@@ -35,6 +35,10 @@ class MinIOSettings(BaseModel):
     access: str = Field(...)
     secret: str = Field(...)
 
+class AWSSettings(BaseModel):
+    access: str = Field(...)
+    secret: str = Field(...)
+    region: str = Field(...)
 
 class AppSettings(BaseSettings):
     model_config = SettingsConfigDict(json_file='appsettings.json')
@@ -46,10 +50,11 @@ class AppSettings(BaseSettings):
     proxy: str | None
     auth: AuthSettings
     smtp: SMTPSettings
-    minio: MinIOSettings
+    minio: MinIOSettings | None
+    aws: AWSSettings | None
     logging: dict
-    sentry: SentrySettings
-    discord: DiscordSettings
+    sentry: SentrySettings | None
+    discord: DiscordSettings | None
 
     @classmethod
     def settings_customise_sources(
