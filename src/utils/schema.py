@@ -2,13 +2,7 @@ import ast
 from datetime import datetime
 from typing import Sequence, TypeVar, Generic, get_args, get_type_hints
 
-from pydantic import (
-    BaseModel,
-    Field,
-    ConfigDict,
-    field_validator,
-    model_validator
-)
+from pydantic import BaseModel, Field, ConfigDict, field_validator, model_validator
 
 from utils import PRIMITIVES
 from utils.enums import FilterOption
@@ -46,10 +40,14 @@ class QueryFilter(BaseModel, Generic[T]):
             raise ValueError(f"{self.attribute} is not a valid attribute")
         args_max = self.option.args_max()
         if len(self.values) > args_max:
-            raise ValueError(f"{self.option} filter only accepts maximum {args_max} values")
+            raise ValueError(
+                f"{self.option} filter only accepts maximum {args_max} values"
+            )
         args_min = self.option.args_min()
         if len(self.values) < args_min:
-            raise ValueError(f"{self.option} filter only accepts minimum {args_min} values")
+            raise ValueError(
+                f"{self.option} filter only accepts minimum {args_min} values"
+            )
         if self.option == FilterOption.LIKE:
             if attr_type is str:
                 raise ValueError("LIKE filter only support <<str>> type attributes")

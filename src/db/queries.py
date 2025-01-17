@@ -1,9 +1,9 @@
 import math
 from typing import TypeVar
 
-from sqlalchemy import Column, Select, asc, desc, func, select
+from sqlalchemy import Select, asc, desc, func, select
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.orm import DeclarativeBase
+from sqlalchemy.orm import DeclarativeBase, Mapped
 
 from utils.enums import FilterOption
 from utils.schema import PagingRequest, PagingResponse, QueryFilter, QuerySort
@@ -23,11 +23,14 @@ async def apaging(query: Select[tuple], page: PagingRequest, db: AsyncSession):
     items = (await db.execute(statement=page_query)).tuples().all()
     return PagingResponse(items=items, total_pages=total_pages)
 
+
 TEntity = TypeVar("TEntity", bound=DeclarativeBase)
-async def sql_filters(filters: list[QueryFilter[TEntity]]):
+
+
+def sql_filters(filters: list[QueryFilter[TEntity]]):
     conditions = []
     for filter in filters:
-        column: Column = getattr(TEntity, filter.attribute)
+        column: Mapped = getattr(TEntity, filter.attribute)
         expression = None
         if filter.option == FilterOption.BETWEEN:
             expression = column.between(cleft=filter.values[0], cright=filter.values[1])
@@ -46,7 +49,8 @@ async def sql_filters(filters: list[QueryFilter[TEntity]]):
         conditions.append(expression)
     return conditions
 
-async def sql_sort_by(priorities: list[QuerySort[TEntity]]):
+
+def sql_sort_by(priorities: list[QuerySort[TEntity]]):
     criteria = []
     for priority in priorities:
         order = asc if priority.asc else desc

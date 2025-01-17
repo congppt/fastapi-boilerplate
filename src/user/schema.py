@@ -2,4 +2,6 @@ from pydantic import BaseModel
 
 
 class UserCreateRequest(BaseModel):
-    pass
+    username: str
+    password: str
+    name: str

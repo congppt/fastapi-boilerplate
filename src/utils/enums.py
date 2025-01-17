@@ -36,6 +36,7 @@ class FilterOption(StrEnum):
             FilterOption.LTE: 1,
             FilterOption.GTE: 1,
         }[self]
+
     def args_min(self):
         return {
             FilterOption.BETWEEN: 2,

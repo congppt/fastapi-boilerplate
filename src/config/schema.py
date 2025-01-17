@@ -73,8 +73,7 @@ class AppSettings(BaseSettings):
     ):
         return (
             YamlConfigSettingsSource(
-                settings_cls=settings_cls,
-                yaml_file="appsettings.yml"
+                settings_cls=settings_cls, yaml_file="../appsettings.yml"
             ),
         )
 

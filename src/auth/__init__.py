@@ -6,11 +6,11 @@ from dependencies import Database
 router = APIRouter(prefix="/auth", tags=["auth"])
 
 
-@router.post(path="", response_model=AuthResponse, summary="Login")
+@router.post(path="/", response_model=AuthResponse, summary="Login")
 async def alogin(request: AuthRequest, db: Database):
     pass
 
 
-@router.get(path="", response_model=AuthResponse, summary="Refresh token")
+@router.get(path="/", response_model=AuthResponse, summary="Refresh token")
 async def arefresh(refresh_token: str, db: Database):
     pass

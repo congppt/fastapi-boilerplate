@@ -45,14 +45,16 @@ def parse(value: Any, model: Type[Any], hook: Callable[[Any, Type[Any]], Any]):
         # handle case when model element type is not fixed to only 1 type
         if element_types and get_origin(element_types[0]) is Union:
             union_types = get_args(tp=element_types[0])
-            parsed_values = [union_parse(value=val, types=union_types, hook=hook) for val in value]
+            parsed_values = [
+                union_parse(value=val, types=union_types, hook=hook) for val in value
+            ]
         # handle case when model element type is not defined/one type only
         else:
             element_type = element_types[0] if element_types else None
             if element_type in PRIMITIVES:
-                parsed_values = [element_type(val) for val in value] # type: ignore
+                parsed_values = [element_type(val) for val in value]  # type: ignore
             else:
-                parsed_values = [hook(val, element_type) for val in value] # type: ignore
+                parsed_values = [hook(val, element_type) for val in value]  # type: ignore
         return model(parsed_values)
 
     raise TypeError(f"{model.__name__} is not supported yet.")

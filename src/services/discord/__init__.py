@@ -26,10 +26,7 @@ class DiscordAPI:
         """Send notification to Discord"""
         if not self._client:
             raise ValueError("Discord API client is not initialized")
-        await self._client.post(
-            url=self._api.chatbot,
-            data={"content": message[:2000]}
-        )
+        await self._client.post(url=self._api.chatbot, data={"content": message[:2000]})
 
     async def aclose(self):
         if not self._client:

@@ -22,10 +22,7 @@ def __create_token(payload: dict, secret: str, exp_after: timedelta):
     exp = datetime.now() + exp_after
     payload.update(m={"exp": exp})
     return jwt.encode(
-        payload=payload,
-        key=secret,
-        algorithm=AUTH_ALGO,
-        json_encoder=CustomJSONEncoder
+        payload=payload, key=secret, algorithm=AUTH_ALGO, json_encoder=CustomJSONEncoder
     )
 
 
@@ -50,7 +47,5 @@ async def aauthenticate(request: AuthRequest, db: AsyncSession):
         exp_after=timedelta(minutes=AUTH_SETTINGS.refresh_exp_minutes),
     )
     return AuthResponse(
-        access_token=access_token,
-        refresh_token=refresh_token,
-        token_type=AUTH_SCHEME
+        access_token=access_token, refresh_token=refresh_token, token_type=AUTH_SCHEME
     )

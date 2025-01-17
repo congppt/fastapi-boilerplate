@@ -1,6 +1,9 @@
 import asyncio
 import importlib
 import logging
+from datetime import time
+
+from logging.handlers import TimedRotatingFileHandler
 
 from typing import Callable, Any, Sequence
 
@@ -30,3 +33,29 @@ class AsyncErrorHandler(logging.Handler):
             else:
                 callables.append(func_name)
         return callables
+
+
+class DailyRotatingFileHandler(TimedRotatingFileHandler):
+    def __init__(
+        self,
+        filename: str,
+        when: str = "midnight",
+        interval: int = 1,
+        backupCount: int = 7,
+        encoding: str | None = None,
+        delay: bool = False,
+        utc: bool = False,
+        atTime: time | None = None,
+        **kwargs,
+    ):
+        super().__init__(
+            filename=filename,
+            when=when,
+            interval=interval,
+            backupCount=backupCount,
+            encoding=encoding,
+            delay=delay,
+            utc=utc,
+            atTime=atTime,
+            **kwargs,
+        )

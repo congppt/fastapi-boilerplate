@@ -14,7 +14,9 @@ def format_vnd(value: int | float | Decimal):
     return "{:,.0f}".format(value).replace(",", ".")
 
 
-async def aformat_html(file_path: str, filler: dict[str, str | int | float] | None= None):
+async def aformat_html(
+    file_path: str, filler: dict[str, str | int | float] | None = None
+):
     """
     Format html file as string and return its content
     :param file_path: html file path
@@ -29,4 +31,6 @@ async def aformat_html(file_path: str, filler: dict[str, str | int | float] | No
 
 
 def format_exception(e: Exception):
-    return "".join(*traceback.format_exception(type(e), value=e, tb=e.__traceback__, limit=5))
+    return "".join(
+        *traceback.format_exception(type(e), value=e, tb=e.__traceback__, limit=5)
+    )
