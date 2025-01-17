@@ -17,14 +17,13 @@ async def acreate_user(request: UserCreateRequest, db: Database):
 async def abatch_create_user(db: Database):
     users = []
     for i in range(10):
-        users.append(
-            await handler.acreate_user(
-                request=UserCreateRequest(
-                    username=f"user{i}", password=f"password{i}", name=f"name{i}"
-                ),
-                db=db,
-            )
+        user = await handler.acreate_user(
+            request=UserCreateRequest(
+                username=f"user{i}", password=f"password{i}", name=f"name{i}"
+            ),
+            db=db,
         )
+        users.append(user)
     return users
 
 

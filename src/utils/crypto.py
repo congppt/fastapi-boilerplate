@@ -4,7 +4,7 @@ from cryptography.fernet import Fernet
 from config import APP_SETTINGS
 
 
-def hash_str(value: str | bytes, to_str=False):
+def hash(value: str | bytes, to_str=False):
     """
     Hash original string/bytes
     :param value: original string

@@ -1,9 +1,9 @@
 import asyncio
 import importlib
 import logging
-from datetime import time
+import os
+from datetime import datetime
 
-from logging.handlers import TimedRotatingFileHandler
 
 from typing import Callable, Any, Sequence
 
@@ -35,27 +35,42 @@ class AsyncErrorHandler(logging.Handler):
         return callables
 
 
-class DailyRotatingFileHandler(TimedRotatingFileHandler):
-    def __init__(
-        self,
-        filename: str,
-        when: str = "midnight",
-        interval: int = 1,
-        backupCount: int = 7,
-        encoding: str | None = None,
-        delay: bool = False,
-        utc: bool = False,
-        atTime: time | None = None,
-        **kwargs,
-    ):
-        super().__init__(
-            filename=filename,
-            when=when,
-            interval=interval,
-            backupCount=backupCount,
-            encoding=encoding,
-            delay=delay,
-            utc=utc,
-            atTime=atTime,
-            **kwargs,
-        )
+class DailyFileHandler(logging.FileHandler):
+    """
+    A logging handler that writes log messages to a file named by the current
+    date using strftime formatting (e.g. logs/2025/Jan/17.log).
+    Each new day will generate a new file (and create directories, if necessary).
+    """
+
+    def __init__(self, base_dir: str, encoding: str = "utf8"):
+        """
+        Create (if not exists) today's file and use it as the stream for logging.
+        """
+        self._base_dir = base_dir
+        now = datetime.now()
+        filename = os.path.join(base_dir, now.strftime("%Y\\%b\\%d") + ".log")
+        os.makedirs(name=os.path.dirname(p=filename), exist_ok=True)
+
+        logging.FileHandler.__init__(self=self, filename=filename, encoding=encoding)
+
+    def _update_stream(self, record: logging.LogRecord):
+        """
+        Ensures that we are writing to the correct file for today's date.
+        If the day changes, close the old file and open a new one.
+        """
+        # Example of the directory and filename: logs/2025/January/17.log
+        now = datetime.fromtimestamp(record.created)
+        filename = os.path.join(self._base_dir, now.strftime("%Y\\%b\\%d") + ".log")
+        # If the filename has changed (or none yet), update
+        if filename != self.baseFilename:
+            # Close the old stream if open
+            logging.FileHandler.close(self=self)
+            # Ensure that the parent directory exists
+            os.makedirs(name=os.path.dirname(p=filename), exist_ok=True)
+            # Update state
+            self.baseFilename = filename
+            logging.FileHandler._open(self=self)
+
+    def emit(self, record: logging.LogRecord):
+        self._update_stream(record=record)
+        logging.FileHandler.emit(self=self, record=record)

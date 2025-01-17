@@ -4,12 +4,14 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from db.models.user import User
 from db.queries import apaging, sql_filters, sql_sort_by
 from user.schema import UserCreateRequest
+from utils.crypto import hash
 from utils.schema import QueryRequest
 
 
 async def acreate_user(request: UserCreateRequest, db: AsyncSession):
-    user = User(**request.model_dump())
-    db.add(user)
+    password = hash(value=request.password)
+    user = User(password=password, **request.model_dump())
+    db.add(instance=user)
     await db.commit()
     return user
 
