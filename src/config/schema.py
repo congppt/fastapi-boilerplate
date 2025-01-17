@@ -1,5 +1,5 @@
 from pydantic import BaseModel, Field, PositiveInt, PostgresDsn, RedisDsn
-from pydantic_settings import BaseSettings, SettingsConfigDict, PydanticBaseSettingsSource, JsonConfigSettingsSource
+from pydantic_settings import BaseSettings, SettingsConfigDict, PydanticBaseSettingsSource, YamlConfigSettingsSource
 
 
 class SMTPSettings(BaseModel):
@@ -65,7 +65,7 @@ class AppSettings(BaseSettings):
         dotenv_settings: PydanticBaseSettingsSource,
         file_secret_settings: PydanticBaseSettingsSource,
     ):
-        return (JsonConfigSettingsSource(settings_cls),)
+        return (YamlConfigSettingsSource(settings_cls=settings_cls, yaml_file='appsettings.yml'),)
 
     @property
     def of_local_env(self):

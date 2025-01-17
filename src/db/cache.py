@@ -3,6 +3,7 @@ from typing import Any, Type
 
 from redis.asyncio import StrictRedis
 
+import logger
 from utils.serializer import json_deserialize, json_serialize
 
 
@@ -12,6 +13,7 @@ class CacheSessionManager:
     async def aclose(self):
         """Close all connections including in-use connections."""
         await self._redis.aclose()
+        logger.log("All cache connections are closed")
 
     async def aget(self, key: str, model: Type[Any] = None):
         """

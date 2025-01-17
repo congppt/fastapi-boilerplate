@@ -7,6 +7,8 @@ from sqlalchemy.ext.asyncio import (
     AsyncConnection,
     AsyncSession)
 
+import logger
+
 
 class DatabaseSessionManager:
     def __init__(self, url: str, **engine_kwargs: Any):
@@ -53,6 +55,8 @@ class DatabaseSessionManager:
 
         self._engine = None
         self._session_maker = None
+
+        logger.log("All database connections are closed")
 
     @property
     def engine(self):

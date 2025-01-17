@@ -17,7 +17,7 @@ class LogMiddleware(BaseHTTPMiddleware):
             response = await call_next(request)
             end = time.perf_counter()
             duration = end - start
-            logger.log(msg=f'{request.client.host:15} - {request.method} {request.url.path} - {response.status_code} {responses[response.status_code]} {duration:.2f}s')
+            logger.log(msg=f'{request.client.host:15}  {request.method:8} {request.url.path:32}  {response.status_code:3} {responses[response.status_code]:32} {duration:.2f}s')
         except Exception as e:
             request_data = {
                 'client': request.client.host,

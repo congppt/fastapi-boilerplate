@@ -2,6 +2,8 @@ from ssl import SSLContext
 
 from httpx import AsyncClient
 
+import logger
+
 
 class DiscordAPI:
     def __init__(
@@ -25,3 +27,4 @@ class DiscordAPI:
     async def aclose(self):
         await self._client.aclose()
         self._client = None
+        logger.log("Discord API client is closed")

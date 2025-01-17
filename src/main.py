@@ -1,3 +1,4 @@
+import asyncio
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
@@ -19,11 +20,11 @@ async def astartup():
 async def ashutdown():
     # close cache connections
     await CACHE.aclose()
-    # shutdown job scheduler
     # close database connections
     await DATABASE.aclose_connections()
+    # close all notify channel
+    await asyncio.gather(*(channel.aclose() for channel in NOTIFY_CHANNELS))
     logger.log(msg="---------------Application shutdown------------------")
-    [channel.aclose() for channel in NOTIFY_CHANNELS]
 
 @asynccontextmanager
 async def lifespan(_app: FastAPI):
