@@ -17,6 +17,7 @@ async def astartup():
     logger.setup()
     logger.log(msg="----------------Application start-------------------")
 
+
 async def ashutdown():
     # close cache connections
     await CACHE.aclose()
@@ -26,29 +27,32 @@ async def ashutdown():
     await asyncio.gather(*(channel.aclose() for channel in NOTIFY_CHANNELS))
     logger.log(msg="---------------Application shutdown------------------")
 
+
 @asynccontextmanager
 async def lifespan(_app: FastAPI):
     await astartup()
     yield
     await ashutdown()
 
+
 app = FastAPI(lifespan=lifespan)
 
 for middleware in middlewares:
     if isinstance(middleware, tuple):
-        app.add_middleware(middleware[0], **middleware[1])
+        app.add_middleware(middleware_class=middleware[0], **middleware[1])
     else:
-        app.add_middleware(middleware)
+        app.add_middleware(middleware_class=middleware)
 
 routers = [auth.router, user.router, config.router]
 for router in routers:
-    app.include_router(router, prefix=f"/{APP_SETTINGS.api_prefix}")
+    app.include_router(router=router, prefix=f"/{APP_SETTINGS.api_prefix}")
 
 
-@app.get("/health-check", summary="Health check")
+@app.get(path="/health-check", summary="Health check")
 async def health_check():
     return "App is running"
 
-@app.get("/exception", summary="Raise exception")
+
+@app.get(path="/exception", summary="Raise exception")
 async def raise_exception():
     raise ValueError("Something went wrong")

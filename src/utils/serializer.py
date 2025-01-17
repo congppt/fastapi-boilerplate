@@ -15,10 +15,10 @@ def json_serialize(obj: Any):
     """
     Serialize an oject into json string
     :param obj: object to serialize"""
-    return json.dumps(obj, cls=CustomJSONEncoder)
+    return json.dumps(obj=obj, cls=CustomJSONEncoder)
 
 
-def json_deserialize(json_str: str, model: Type[Any] = None) -> Any:
+def json_deserialize(json_str: str, model: Type[Any] | None = None) -> Any:
     """
     Deserialize a json string into object of given type
     :param json_str: json represented as string
@@ -26,7 +26,7 @@ def json_deserialize(json_str: str, model: Type[Any] = None) -> Any:
     :return: deserialized object
     """
     try:
-        value = json.loads(json_str)
+        value = json.loads(s=json_str)
         # return dict/primitive if model not defined
         if model is None:
             return value
@@ -37,4 +37,4 @@ def json_deserialize(json_str: str, model: Type[Any] = None) -> Any:
 
 
 def json_parse(value: Any, model: Type[Any]):
-    return json_deserialize(json_str=json_serialize(value), model=model)
+    return json_deserialize(json_str=json_serialize(obj=value), model=model)

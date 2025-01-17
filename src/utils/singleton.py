@@ -1,9 +1,11 @@
 from threading import Lock
 
+
 class Singleton(type):
     """
-        This is a thread-safe implementation of Singleton.
+    This is a thread-safe implementation of Singleton.
     """
+
     _instances = {}
 
     _lock: Lock = Lock()
@@ -36,5 +38,5 @@ class Singleton(type):
     @property
     def instance(cls):
         if cls not in cls._instances:
-            raise ValueError(f'Object of type {cls.__name__} has not been initialized')
+            raise ValueError(f"Object of type {cls.__name__} has not been initialized")
         return cls._instances[cls]

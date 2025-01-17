@@ -14,8 +14,8 @@ async def send_email(body: str,
                      sender: str,
                      recipients: Sequence[str],
                      subject: str,
-                     attachments: Sequence[UploadFile | str] = None,
-                     inline_images: dict[str, UploadFile | str] = None,
+                     attachments: Sequence[UploadFile | str] | None = None,
+                     inline_images: dict[str, UploadFile | str] | None = None,
                      protocol: Literal['smtp', 'http'] = 'smtp'):
     message = EmailMessage()
     message.add_header('Subject', subject)
@@ -26,9 +26,9 @@ async def send_email(body: str,
             filename = attachment.filename
         else:
             try:
-                with open(attachment, "rb") as f:
+                with open(file=attachment, mode="rb") as f:
                     data = f.read()
-                    filename = attachment.split("/")[-1]
+                    filename = attachment.split(sep="/")[-1]
             except FileNotFoundError:
                 logger.log(msg=f'{attachment} was not found', level=logging.WARNING)
                 continue
@@ -37,19 +37,19 @@ async def send_email(body: str,
     for cid, image in inline_images.items():
         if isinstance(image, UploadFile):
             data = await image.read()
-            ext = image.filename.split(".")[-1]
+            ext = image.filename.split(".")[-1] if image.filename else 'png'
         else:
             try:
-                with open(image, "rb") as f:
+                with open(file=image, mode="rb") as f:
                     data = f.read()
-                    ext = image.split(".")[-1]
+                    ext = image.split(sep=".")[-1]
             except FileNotFoundError:
                 logger.log(msg=f'{image} was not found.', level=logging.WARNING)
                 continue
         message.add_related(data, maintype="image",subtype=ext, cid=f"<{cid}>")
         if protocol == 'smtp':
             async for db in aget_db():
-                smtp = SMTP(**APP_SETTINGS.smtp)
+                smtp = SMTP(**APP_SETTINGS.smtp.model_dump())
                 await smtp.send_message(message, sender=sender, recipients=recipients)
         elif protocol == 'http':
             pass

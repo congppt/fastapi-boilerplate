@@ -75,7 +75,7 @@ class AuthMiddleware(AuthenticationBackend):
         :return: Current user
         """
         key = CURRENT_USER_KEY.format(user_id)
-        current_user = aget_cache(key=key, model=CurrentUser)
+        current_user = await aget_cache(key=key, model=CurrentUser)
         if not current_user:
             query = select(User).where(User.id == user_id)
             user = await db.scalar(statement=query)

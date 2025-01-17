@@ -1,23 +1,18 @@
 from contextlib import asynccontextmanager
-from typing import Any, AsyncGenerator
+from typing import Any
 
-from sqlalchemy.ext.asyncio import (
-    create_async_engine,
-    async_sessionmaker,
-    AsyncConnection,
-    AsyncSession)
-
+from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker
 import logger
 
 
 class DatabaseSessionManager:
     def __init__(self, url: str, **engine_kwargs: Any):
         """
-            A database session manager help manage multiple database engine easier than top-level definition
-            :param url: Database connection string
-            :param engine_kwargs: Keyword arguments used for engine configuration
+        A database session manager help manage multiple database engine easier than top-level definition
+        :param url: Database connection string
+        :param engine_kwargs: Keyword arguments used for engine configuration
         """
-        self._engine = create_async_engine(url, **engine_kwargs)
+        self._engine = create_async_engine(url=url, **engine_kwargs)
         self._session_maker = async_sessionmaker(bind=self._engine)
 
     @asynccontextmanager

@@ -11,8 +11,8 @@ def hash_str(value: str | bytes, to_str=False):
     :param to_str: return string(True) or bytes(False) (default: False)
     :return: Hashed bytes
     """
-    value: bytes = value.encode() if isinstance(value, str) else value
-    result = hashpw(value, gensalt())
+    value = value.encode() if isinstance(value, str) else value
+    result = hashpw(password=value, salt=gensalt())
     return result.decode() if to_str else result
 
 
@@ -23,11 +23,11 @@ def match_original(target: str | bytes, source: bytes):
     :param source: hashed bytes
     :return: True if given string is origin of hashed bytes
     """
-    target: bytes = target.encode() if isinstance(target, str) else target
-    return checkpw(target, source)
+    target = target.encode() if isinstance(target, str) else target
+    return checkpw(password=target, hashed_password=source)
 
 
-__fernet = Fernet(APP_SETTINGS.encrypt_key)
+__fernet = Fernet(key=APP_SETTINGS.encrypt_key)
 
 
 def encrypt(origin: str | bytes, to_str=False):
@@ -37,8 +37,8 @@ def encrypt(origin: str | bytes, to_str=False):
     :param to_str: return string(True) or bytes(False) (default: False)
     :return: encrypted string/bytes
     """
-    origin: bytes = origin.encode() if isinstance(origin, str) else origin
-    result = __fernet.encrypt(origin)
+    origin = origin.encode() if isinstance(origin, str) else origin
+    result = __fernet.encrypt(data=origin)
     return result.decode() if to_str else result
 
 
@@ -49,6 +49,6 @@ def decrypt(encrypted: str | bytes, to_str=True):
     :param to_str: return string(True) or bytes(False) (default: True)
     :return: decrypted string/bytes
     """
-    encrypted: bytes = encrypted.encode() if isinstance(encrypted, str) else encrypted
-    result = __fernet.decrypt(encrypted)
+    encrypted = encrypted.encode() if isinstance(encrypted, str) else encrypted
+    result = __fernet.decrypt(token=encrypted)
     return result.decode() if to_str else result

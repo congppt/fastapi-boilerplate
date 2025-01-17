@@ -8,6 +8,7 @@ from starlette.requests import Request
 import logger
 from constants import MAX_BODY_LOG
 
+
 class LogMiddleware(BaseHTTPMiddleware):
     async def dispatch(self, request: Request, call_next):
         start = time.perf_counter()
@@ -17,14 +18,16 @@ class LogMiddleware(BaseHTTPMiddleware):
             response = await call_next(request)
             end = time.perf_counter()
             duration = end - start
-            logger.log(msg=f'{request.client.host:15}  {request.method:8} {request.url.path:32}  {response.status_code:3} {responses[response.status_code]:32} {duration:.2f}s')
+            logger.log(
+                msg=f"{(request.client.host if request.client else 'Unknown'):15}  {request.method:8} {request.url.path:32}  {response.status_code:3} {responses[response.status_code]:32} {duration:.2f}s"
+            )
         except Exception as e:
             request_data = {
-                'client': request.client.host,
-                'method': request.method,
-                'path': request.url.path,
-                'query': request.query_params,
-                'body': body if len(body) < MAX_BODY_LOG else 'Large file(s)',
+                "client": request.client.host if request.client else "Unknown",
+                "method": request.method,
+                "path": request.url.path,
+                "query": request.query_params,
+                "body": body if len(body) < MAX_BODY_LOG else "Large file(s)",
             }
             response = Response(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
             logger.log(msg=e, request=request_data, duration=duration)

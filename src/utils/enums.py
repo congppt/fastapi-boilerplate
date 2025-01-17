@@ -1,4 +1,4 @@
-from enum import IntEnum
+from enum import IntEnum, StrEnum
 
 
 class Weekday(IntEnum):
@@ -9,3 +9,15 @@ class Weekday(IntEnum):
     THURSDAY = 4
     FRIDAY = 5
     SATURDAY = 6
+
+
+class FunctionType(IntEnum):
+    READ = 0
+    WRITE = 1
+    DELETE = 2
+
+
+class FilterOption(StrEnum):
+    IN = "IN"
+    BETWEEN = "BETWEEN"
+    LIKE = "LIKE"

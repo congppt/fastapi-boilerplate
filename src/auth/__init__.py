@@ -11,6 +11,6 @@ async def alogin(request: AuthRequest, db: Database):
     pass
 
 
-@router.get(path="/refresh", response_model=AuthResponse, summary="Refresh token")
+@router.get(path="", response_model=AuthResponse, summary="Refresh token")
 async def arefresh(refresh_token: str, db: Database):
     pass

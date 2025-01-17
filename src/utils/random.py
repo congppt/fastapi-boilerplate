@@ -9,7 +9,7 @@ def random_otp(length: int):
     :return: random otp
     """
     # noinspection PyTypeChecker
-    return ''.join(random.choices(string.digits, k=length))
+    return "".join(random.choices(population=string.digits, k=length))
 
 
 def random_str(length: int):
@@ -19,4 +19,4 @@ def random_str(length: int):
     :return: random string
     """
     # noinspection PyTypeChecker
-    return ''.join(random.choices(string.ascii_letters + string.digits, k=length))
+    return "".join(random.choices(population=string.ascii_letters + string.digits, k=length))

@@ -1,17 +1,17 @@
-import logging
+import logging.config
 
-from logging import config
 from typing import Any
 
 import sentry_sdk
 
 from config import APP_SETTINGS
 from constants import REQUEST_TIMEOUT
-from logger.handler import AsyncErrorHandler
 from services.discord import DiscordAPI
 from utils.formatters import format_exception
 
 NOTIFY_CHANNELS = []
+
+
 def setup():
     """
     Setup logging services
@@ -19,16 +19,18 @@ def setup():
 
     if APP_SETTINGS.sentry:
         sentry_config: dict[str, Any] = APP_SETTINGS.sentry.model_dump()
-        sentry_sdk.init(environment=APP_SETTINGS.env,
-                        # debug=IS_LOCAL,
-                        **sentry_config)
-    if APP_SETTINGS.discord:
+        sentry_sdk.init(
+            environment=APP_SETTINGS.env,
+            # debug=IS_LOCAL,
+            **sentry_config,
+        )
+    if APP_SETTINGS.discord_api:
         NOTIFY_CHANNELS.append(
             DiscordAPI(
-                base_url=APP_SETTINGS.discord.base_url,
                 timeout=REQUEST_TIMEOUT,
                 proxy=APP_SETTINGS.proxy,
-                verify=False
+                verify=False,
+                api=APP_SETTINGS.discord_api,
             )
         )
     # Logger Configuration
@@ -41,9 +43,15 @@ async def aomninotify(log_entry: str):
     """
     for channel in NOTIFY_CHANNELS:
         if isinstance(channel, DiscordAPI):
-            await channel.asend_bot_message(log_entry, APP_SETTINGS.discord.chatbot_hook)
+            await channel.asend_bot_message(message=log_entry)
 
-def log(msg: object, level: int = None, *args, **kwargs):
+
+def log(
+    msg: str | Exception | tuple[str, Exception],
+    level: int | None = None,
+    *args,
+    **kwargs,
+):
     """
     Log message
     :param msg: message to log
@@ -57,7 +65,7 @@ def log(msg: object, level: int = None, *args, **kwargs):
         msg = format_exception(e=msg)
     elif isinstance(msg, tuple):
         level = level or logging.ERROR
-        exc_msg = format_exception(msg[1])
+        exc_msg = format_exception(e=msg[1])
         msg = msg[0] + exc_msg
     else:
         level = level or logging.INFO

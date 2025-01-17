@@ -1,5 +1,10 @@
 from pydantic import BaseModel, Field, PositiveInt, PostgresDsn, RedisDsn
-from pydantic_settings import BaseSettings, SettingsConfigDict, PydanticBaseSettingsSource, YamlConfigSettingsSource
+from pydantic_settings import (
+    BaseSettings,
+    SettingsConfigDict,
+    PydanticBaseSettingsSource,
+    YamlConfigSettingsSource,
+)
 
 
 class SMTPSettings(BaseModel):
@@ -12,15 +17,14 @@ class SMTPSettings(BaseModel):
 
 
 class SentrySettings(BaseModel):
-    dsn: str = Field(...)
+    dsn: str = Field(default=...)
     traces_sample_rate: float = Field(ge=0.0, le=1.0)
     sample_rate: float = Field(ge=0.0, le=1.0)
     profiles_sample_rate: float = Field(ge=0.0, le=1.0)
 
 
-class DiscordSettings(BaseModel):
-    base_url: str = Field(...)
-    chatbot_hook: str = Field(...)
+class DiscordAPISettings(BaseModel):
+    chatbot: str = Field(default=...)
 
 
 class AuthSettings(BaseModel):
@@ -31,22 +35,24 @@ class AuthSettings(BaseModel):
 
 
 class MinIOSettings(BaseModel):
-    host: str = Field(...)
-    access: str = Field(...)
-    secret: str = Field(...)
+    host: str = Field(default=...)
+    access: str = Field(default=...)
+    secret: str = Field(default=...)
+
 
 class AWSSettings(BaseModel):
-    access: str = Field(...)
-    secret: str = Field(...)
-    region: str = Field(...)
+    access: str = Field(default=...)
+    secret: str = Field(default=...)
+    region: str = Field(default=...)
+
 
 class AppSettings(BaseSettings):
-    model_config = SettingsConfigDict(json_file='appsettings.json')
-    env: str = Field(...)
-    postgres_dsn:  PostgresDsn = Field(...)
-    redis_dsn: RedisDsn = Field(...)
+    model_config = SettingsConfigDict(json_file="appsettings.json")
+    env: str = Field(default=...)
+    postgres_dsn: PostgresDsn = Field(default=...)
+    redis_dsn: RedisDsn = Field(default=...)
     api_prefix: str | None
-    encrypt_key: str = Field(..., min_length=32)
+    encrypt_key: str = Field(default=..., min_length=32)
     proxy: str | None
     auth: AuthSettings
     smtp: SMTPSettings
@@ -54,7 +60,7 @@ class AppSettings(BaseSettings):
     aws: AWSSettings | None
     logging: dict
     sentry: SentrySettings | None
-    discord: DiscordSettings | None
+    discord_api: DiscordAPISettings | None
 
     @classmethod
     def settings_customise_sources(
@@ -65,10 +71,16 @@ class AppSettings(BaseSettings):
         dotenv_settings: PydanticBaseSettingsSource,
         file_secret_settings: PydanticBaseSettingsSource,
     ):
-        return (YamlConfigSettingsSource(settings_cls=settings_cls, yaml_file='appsettings.yml'),)
+        return (
+            YamlConfigSettingsSource(
+                settings_cls=settings_cls,
+                yaml_file="appsettings.yml"
+            ),
+        )
 
     @property
     def of_local_env(self):
-        return self.env != 'production' and self.env != 'test'
+        return self.env != "production" and self.env != "test"
+
     def of_production_env(self):
-        return self.env == 'production'
+        return self.env == "production"

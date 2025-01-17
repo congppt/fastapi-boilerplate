@@ -8,6 +8,7 @@ from middlewares.auth import CurrentUser
 
 Database = Annotated[AsyncSession, Depends(aget_db)]
 
+
 def get_current_user(request: Request) -> CurrentUser | None:
     """
     Get current user of request
