@@ -21,3 +21,28 @@ class FilterOption(StrEnum):
     IN = "IN"
     BETWEEN = "BETWEEN"
     LIKE = "LIKE"
+    LT = "<"
+    GT = ">"
+    LTE = "<="
+    GTE = ">="
+
+    def args_max(self):
+        return {
+            FilterOption.BETWEEN: 2,
+            FilterOption.IN: None,
+            FilterOption.LIKE: 1,
+            FilterOption.LT: 1,
+            FilterOption.GT: 1,
+            FilterOption.LTE: 1,
+            FilterOption.GTE: 1,
+        }[self]
+    def args_min(self):
+        return {
+            FilterOption.BETWEEN: 2,
+            FilterOption.IN: 1,
+            FilterOption.LIKE: 1,
+            FilterOption.LT: 1,
+            FilterOption.GT: 1,
+            FilterOption.LTE: 1,
+            FilterOption.GTE: 1,
+        }[self]
