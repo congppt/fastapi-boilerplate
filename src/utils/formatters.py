@@ -39,7 +39,7 @@ def format_exception(e: Exception):
     excluded_paths = {
         os.path.join(os.path.sep, "usr", "lib", "python3"),
         os.path.join(os.path.sep, "Library", "Python"),
-        "site-packages"
+        "site-packages",
     }
     # Filter out frames whose `filename` starts with or contains library paths
     filtered_frames = []
@@ -48,4 +48,6 @@ def format_exception(e: Exception):
         if not any(path_fragment in frame.filename for path_fragment in excluded_paths):
             filtered_frames.append(frame)
     last_frame = filtered_frames[-1] if filtered_frames else frames[-1]
-    return f"\n**Traceback**:{frames.format_frame_summary(last_frame)}**Exception**: {e}"
+    return (
+        f"\n**Traceback**:{frames.format_frame_summary(last_frame)}**Exception**: {e}"
+    )

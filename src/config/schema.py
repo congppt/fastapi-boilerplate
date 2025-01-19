@@ -81,5 +81,6 @@ class AppSettings(BaseSettings):
     def of_local_env(self):
         return self.env != "production" and self.env != "test"
 
+    @property
     def of_production_env(self):
         return self.env == "production"

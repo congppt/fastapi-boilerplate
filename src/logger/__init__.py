@@ -41,6 +41,8 @@ async def aomninotify(log_entry: str):
     """
     Send log message as notification
     """
+    if APP_SETTINGS.of_local_env:
+        return
     for channel in NOTIFY_CHANNELS:
         if isinstance(channel, DiscordAPI):
             await channel.asend_bot_message(message=log_entry)
