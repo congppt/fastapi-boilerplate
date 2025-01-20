@@ -16,6 +16,7 @@
                 "--reload"
             ],
             "jinja": true,
+            "justMyCode": false
         }
     ]
 }

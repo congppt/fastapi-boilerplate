@@ -2,6 +2,9 @@ import time
 from http.client import responses
 
 from fastapi import Response, status
+from fastapi.encoders import jsonable_encoder
+from fastapi.responses import JSONResponse
+from pydantic import ValidationError
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.requests import Request
 
@@ -29,6 +32,15 @@ class LogMiddleware(BaseHTTPMiddleware):
                 "query": request.query_params,
                 "body": body if len(body) < MAX_BODY_LOG else "Large file(s)",
             }
-            response = Response(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
             logger.log(msg=e, request=request_data, duration=duration)
+            response = Response(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            if isinstance(e, ValidationError):
+                response = JSONResponse(
+                    status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+                    content={
+                        "detail": jsonable_encoder(
+                            obj=e.errors(include_url=False, include_context=False)
+                        )
+                    },
+                )
         return response

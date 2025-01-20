@@ -25,8 +25,6 @@ async def apaging(query: Select[tuple], page: PageRequest, db: AsyncSession):
     return {"items": items, "total_pages": total_pages}
 
 
-
-
 def to_sql_filter(self: FilterCriteria):
     """Convert the QueryFilter to a SQLAlchemy filter expression.
 

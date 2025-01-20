@@ -24,7 +24,8 @@ async def aget_users(db: AsyncSession, request: QueryRequest):
         filter.to_sql_filter() for filter in request.resolve_filters(entity=User)
     ]
     priorities = [
-        priority.to_sql_priority() for priority in request.resolve_sort_by(entity=User)
+        priority.to_sql_priority()
+        for priority in request.resolve_priorities(entity=User)
     ]
     query = (
         select(User.id, User.username, User.name).where(*filters).order_by(*priorities)
