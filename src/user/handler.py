@@ -26,5 +26,7 @@ async def aget_users(db: AsyncSession, request: QueryRequest):
     priorities = [
         priority.to_sql_priority() for priority in request.resolve_sort_by(entity=User)
     ]
-    query = select(User).where(*filters).order_by(*priorities)
+    query = (
+        select(User.id, User.username, User.name).where(*filters).order_by(*priorities)
+    )
     return await apaging(query=query, page=request, db=db)

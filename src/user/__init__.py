@@ -1,3 +1,5 @@
+from datetime import datetime
+from uuid import uuid4
 from fastapi import APIRouter, Depends
 
 from dependencies import Database
@@ -19,7 +21,9 @@ async def abatch_create_user(db: Database):
     for i in range(10):
         user = await handler.acreate_user(
             request=UserCreateRequest(
-                username=f"user{i}", password=f"password{i}", name=f"name{i}"
+                username=f"{uuid4()}",
+                password=f"password{i}",
+                name=f"name{datetime.now():%Y%m%d}",
             ),
             db=db,
         )
