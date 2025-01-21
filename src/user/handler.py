@@ -20,12 +20,9 @@ async def acreate_user(request: UserCreateRequest, db: AsyncSession):
 
 
 async def aget_users(db: AsyncSession, request: QueryRequest):
-    filters = [
-        filter.to_sql_filter() for filter in request.resolve_filters(entity=User)
-    ]
+    filters = [filter.to_sql_filter() for filter in request.resolve_filters()]
     priorities = [
-        priority.to_sql_priority()
-        for priority in request.resolve_priorities(entity=User)
+        priority.to_sql_priority() for priority in request.resolve_priorities()
     ]
     query = (
         select(User.id, User.username, User.name).where(*filters).order_by(*priorities)

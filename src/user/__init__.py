@@ -1,7 +1,9 @@
 from datetime import datetime
+from typing import Annotated
 from uuid import uuid4
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Query
 
+from db.models.user import User
 from dependencies import Database
 from user.schema import UserCreateRequest
 from user import handler
@@ -32,5 +34,5 @@ async def abatch_create_user(db: Database):
 
 
 @router.get(path="/", summary="Get users")
-async def aget_users(db: Database, request: QueryRequest = Depends()):
+async def aget_users(db: Database, request: Annotated[QueryRequest[User], Query()]):
     return await handler.aget_users(db=db, request=request)

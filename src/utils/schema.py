@@ -1,16 +1,17 @@
 import ast
 from datetime import datetime
 import re
-from typing import Any
+from typing import Any, Generic, TypeVar
 
-from pydantic import BaseModel, Field, ValidationError, field_validator, model_validator
-from pydantic_core import InitErrorDetails
+from pydantic import BaseModel, Field, ValidationError, field_validator
+from pydantic_core import InitErrorDetails, PydanticCustomError
 
 from utils.enums import FilterOption
 
+T = TypeVar("T")
 SORTABLE_TYPES = (str, int, float, datetime)
 VALUE_REGEX = re.compile(
-    r"^(?:\'[^\']*\'|\d+(?:\.\d+)?|\((?:\'[^\']*\'|\d+(?:\.\d+)?(?:\s*,\s*(?:\'[^\']*\'|\d+(?:\.\d+)?))*)\))$"
+    pattern=r"^(?:\'[^\']*\'|\d+(?:\.\d+)?|\((?:\'[^\']*\'|\d+(?:\.\d+)?(?:\s*,\s*(?:\'[^\']*\'|\d+(?:\.\d+)?))*)\))$"
 )
 
 
@@ -23,108 +24,85 @@ class EntityBasedCriteria(BaseModel):
     entity: type
     attribute: str = Field(default=...)
 
-    @model_validator(mode="after")
-    def validate_attribute(self):
-        if not hasattr(self.entity, self.attribute):
-            raise ValidationError.from_exception_data(
-                title=self.__class__.__name__,
-                line_errors=[
-                    InitErrorDetails(
-                        type="value_error",
-                        loc=("attribute",),
-                        input=self.attribute,
-                        ctx={
-                            "error": ValueError(
-                                f"{self.attribute} is not an attribute of {self.entity}"
-                            )
-                        },
-                    )
-                ],
-            )
-        return self
-
 
 class FilterCriteria(EntityBasedCriteria):
     values: tuple = Field(min_length=1)
     option: FilterOption
 
-    @field_validator("values")
-    def validate(cls, v):
-        typ = type(v[0])
-        if any(type(value) is not typ for value in v):
-            raise ValueError("All values must be of same type")
-        return v
-
-    @model_validator(mode="after")
-    def validate_values(self):
-        args_max = self.option.args_max()
-        if args_max and len(self.values) > args_max:
-            raise ValidationError.from_exception_data(
-                title=self.__class__.__name__,
-                line_errors=[
-                    InitErrorDetails(
-                        type="less_than",
-                        loc=("values",),
-                        input=self.values,
-                        ctx={
-                            "error": ValueError(
-                                f"{self.option} filter accepts maximum {args_max} values"
-                            )
-                        },
-                    )
-                ],
-            )
-        args_min = self.option.args_min()
-        if len(self.values) < args_min:
-            raise ValidationError.from_exception_data(
-                title=self.__class__.__name__,
-                line_errors=[
-                    InitErrorDetails(
-                        type="greater_than",
-                        loc=("values",),
-                        input=self.values,
-                        ctx={
-                            "error": ValueError(
-                                f"{self.option} filter accepts maximum {args_max} values"
-                            )
-                        },
-                    )
-                ],
-            )
-        return self
-
     def to_sql_filter(self) -> Any:
         raise NotImplementedError("Method is not implemented")
 
 
-class FilterRequest(BaseModel):
+class FilterRequest(BaseModel, Generic[T]):
     filters: str | None = Field(default=None)
 
     @field_validator("filters")
-    def validate_filters(cls, v):
-        candidates = v.split(sep=";") if v else []
-        for candidate in candidates:
-            metadata = candidate.split(sep=" ", maxsplit=3)
-            if len(metadata) != 3:
-                raise ValueError(
-                    f"Invalid filter format. Expected '[attribute] [option] [value(s)]', got: '{candidate}'"
+    def validate_filters(cls, v: str | None) -> str | None:
+        if not v:  # Early return for None/empty
+            return v
+        candidates = v.split(sep=";")
+        for i, candidate in enumerate(iterable=candidates):
+            try:
+                metadata = candidate.split(sep=" ", maxsplit=3)
+                if len(metadata) != 3:
+                    raise ValueError(
+                        f"Invalid filter format. Expected '[attribute] [option] [values]', got: '{candidate}'"
+                    )
+                attribute, option_str, value_str = metadata
+                # Validate attribute
+                if not attribute:
+                    raise ValueError("Attribute required")
+                entity_type = cls.__pydantic_generic_metadata__["args"][0]
+                if not hasattr(entity_type, attribute):
+                    raise ValueError(
+                        f"'{attribute}' is not an attribute of {entity_type.__name__}"
+                    )
+                # Validate option
+                if option_str not in {opt.value for opt in FilterOption}:
+                    raise ValueError(
+                        f"Invalid option '{option_str}'. Must be one of: {', '.join(opt.value for opt in FilterOption)}"
+                    )
+                # Validate value format and type
+                if not VALUE_REGEX.match(string=value_str):
+                    raise ValueError(
+                        "Expected a string, number, or tuple of strings/numbers"
+                    )
+                # Parse and validate values
+                value = ast.literal_eval(node_or_string=value_str)
+                values = (
+                    tuple(value) if isinstance(value, (tuple, list, set)) else (value,)
                 )
-            if not metadata[0]:
-                raise ValueError("Attribute is required")
-            options = {opt.value for opt in FilterOption}
-            if metadata[-2] not in options:
-                raise ValueError(
-                    f"Invalid filter option: {metadata[-2]}. Must be one of [{', '.join(options)}]"
-                )
-            if not VALUE_REGEX.match(metadata[-1]):
-                raise ValueError(
-                    f"Invalid filter value(s): {metadata[-1]}. Expected a string, number, or a tuple of strings/numbers"
+                option = FilterOption(value=option_str)
+                if option.args_max() and len(values) > option.args_max():
+                    raise ValueError(f"Maximum {option.args_max()} values allowed")
+                if len(values) < option.args_min():
+                    raise ValueError(f"Minimum {option.args_min()} values required")
+
+                if not all(isinstance(x, type(values[0])) for x in values):
+                    raise ValueError("All values must be of same type")
+            except ValueError as e:
+                raise ValidationError.from_exception_data(
+                    title=cls.__name__,
+                    line_errors=[
+                        InitErrorDetails(
+                            type=PydanticCustomError("value_error", str(e)),
+                            loc=(i,),  # Track which filter failed
+                            input=candidate,
+                        )
+                    ],
                 )
         return v
 
-    def resolve_filters(self, entity: type):
+    def resolve_filters(self):
+        """Resolves filter string into FilterCriteria objects.
+
+        Returns:
+            list[FilterCriteria]: List of parsed filter criteria
+        """
+        if not self.filters:
+            return []
         filters: list[FilterCriteria] = []
-        candidates = self.filters.split(sep=";") if self.filters else []
+        candidates = self.filters.split(sep=";")
         for candidate in candidates:
             metadata = candidate.split(sep=" ", maxsplit=3)
             value = ast.literal_eval(node_or_string=metadata[-1])
@@ -134,7 +112,7 @@ class FilterRequest(BaseModel):
                 values = (value,)
             filters.append(
                 FilterCriteria(
-                    entity=entity,
+                    entity=self.__class__.__pydantic_generic_metadata__["args"][0],
                     attribute=metadata[0],
                     values=values,
                     option=FilterOption(value=metadata[-2]),
@@ -150,12 +128,14 @@ class PriorityCriteria(EntityBasedCriteria):
         raise NotImplementedError("Method is not implemented")
 
 
-class PrioritizeRequest(BaseModel):
+class PrioritizeRequest(BaseModel, Generic[T]):
     priorities: str | None = Field(default=None)
 
     @field_validator("priorities")
     def validate_priorities(cls, v):
-        candidates = v.split(sep=";") if v else []
+        if not v:
+            return v
+        candidates = v.split(sep=";")
         for candidate in candidates:
             metadata = candidate.split(sep=" ", maxsplit=1)
             if len(metadata) > 2:
@@ -164,18 +144,30 @@ class PrioritizeRequest(BaseModel):
                 )
             if not metadata[0]:
                 raise ValueError("Attribute is required")
+            entity_type = cls.__pydantic_generic_metadata__["args"][0]
+            if not hasattr(entity_type, metadata[0]):
+                raise ValueError(
+                    f"'{metadata[0]}' is not an attribute of {entity_type.__name__}"
+                )
             if len(metadata) != 1 and metadata[1] not in {"ASC", "DESC"}:
                 raise ValueError("Sorting order must be ASC or DESC")
         return v
 
-    def resolve_priorities(self, entity: type):
+    def resolve_priorities(self):
+        """Resolves priority string into PriorityCriteria objects.
+
+        Returns:
+            list[PriorityCriteria]: List of parsed priority criteria
+        """
+        if not self.priorities:
+            return []
         priorities: list[PriorityCriteria] = []
-        candidates = self.priorities.split(sep=";") if self.priorities else []
+        candidates = self.priorities.split(sep=";")
         for candidate in candidates:
             metadata = candidate.split(sep=" ", maxsplit=1)
             priorities.append(
                 PriorityCriteria(
-                    entity=entity,
+                    entity=self.__class__.__pydantic_generic_metadata__["args"][0],
                     attribute=metadata[0],
                     asc=len(metadata) == 1 or metadata[1] == "ASC",
                 )
@@ -183,5 +175,5 @@ class PrioritizeRequest(BaseModel):
         return priorities
 
 
-class QueryRequest(PageRequest, FilterRequest, PrioritizeRequest):
+class QueryRequest(PageRequest, FilterRequest[T], PrioritizeRequest[T], Generic[T]):
     pass
