@@ -41,56 +41,44 @@ class FilterRequest(BaseModel, Generic[T]):
         if not v:  # Early return for None/empty
             return v
         candidates = v.split(sep=";")
-        for i, candidate in enumerate(iterable=candidates):
-            try:
-                metadata = candidate.split(sep=" ", maxsplit=3)
-                if len(metadata) != 3:
-                    raise ValueError(
-                        f"Invalid filter format. Expected '[attribute] [option] [values]', got: '{candidate}'"
-                    )
-                attribute, option_str, value_str = metadata
-                # Validate attribute
-                if not attribute:
-                    raise ValueError("Attribute required")
-                entity_type = cls.__pydantic_generic_metadata__["args"][0]
-                if not hasattr(entity_type, attribute):
-                    raise ValueError(
-                        f"'{attribute}' is not an attribute of {entity_type.__name__}"
-                    )
-                # Validate option
-                if option_str not in {opt.value for opt in FilterOption}:
-                    raise ValueError(
-                        f"Invalid option '{option_str}'. Must be one of: {', '.join(opt.value for opt in FilterOption)}"
-                    )
-                # Validate value format and type
-                if not VALUE_REGEX.match(string=value_str):
-                    raise ValueError(
-                        "Expected a string, number, or tuple of strings/numbers"
-                    )
-                # Parse and validate values
-                value = ast.literal_eval(node_or_string=value_str)
-                values = (
-                    tuple(value) if isinstance(value, (tuple, list, set)) else (value,)
+        for candidate in candidates:
+            metadata = candidate.split(sep=" ", maxsplit=3)
+            if len(metadata) != 3:
+                raise ValueError(
+                    f"Invalid filter format. Expected '[attribute] [option] [values]', got: '{candidate}'"
                 )
-                option = FilterOption(value=option_str)
-                if option.args_max() and len(values) > option.args_max():
-                    raise ValueError(f"Maximum {option.args_max()} values allowed")
-                if len(values) < option.args_min():
-                    raise ValueError(f"Minimum {option.args_min()} values required")
+            attribute, option_str, value_str = metadata
+            # Validate attribute
+            if not attribute:
+                raise ValueError("Attribute required")
+            entity_type = cls.__pydantic_generic_metadata__["args"][0]
+            if not hasattr(entity_type, attribute):
+                raise ValueError(
+                    f"'{attribute}' is not an attribute of {entity_type.__name__}"
+                )
+            # Validate option
+            if option_str not in {opt.value for opt in FilterOption}:
+                raise ValueError(
+                    f"Invalid option '{option_str}'. Must be one of: {', '.join(opt.value for opt in FilterOption)}"
+                )
+            # Validate value format and type
+            if not VALUE_REGEX.match(string=value_str):
+                raise ValueError(
+                    "Expected a string, number, or tuple of strings/numbers"
+                )
+            # Parse and validate values
+            value = ast.literal_eval(node_or_string=value_str)
+            values = (
+                tuple(value) if isinstance(value, (tuple, list, set)) else (value,)
+            )
+            option = FilterOption(value=option_str)
+            if option.args_max() and len(values) > option.args_max():
+                raise ValueError(f"Maximum {option.args_max()} values allowed")
+            if len(values) < option.args_min():
+                raise ValueError(f"Minimum {option.args_min()} values required")
 
-                if not all(isinstance(x, type(values[0])) for x in values):
-                    raise ValueError("All values must be of same type")
-            except ValueError as e:
-                raise ValidationError.from_exception_data(
-                    title=cls.__name__,
-                    line_errors=[
-                        InitErrorDetails(
-                            type=PydanticCustomError("value_error", str(e)),
-                            loc=(i,),  # Track which filter failed
-                            input=candidate,
-                        )
-                    ],
-                )
+            if not all(isinstance(x, type(values[0])) for x in values):
+                raise ValueError("All values must be of same type")
         return v
 
     def resolve_filters(self):
