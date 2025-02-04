@@ -68,9 +68,7 @@ class FilterRequest(BaseModel, Generic[T]):
                 )
             # Parse and validate values
             value = ast.literal_eval(node_or_string=value_str)
-            values = (
-                tuple(value) if isinstance(value, (tuple, list, set)) else (value,)
-            )
+            values = tuple(value) if isinstance(value, (tuple, list, set)) else (value,)
             option = FilterOption(value=option_str)
             if option.args_max() and len(values) > option.args_max():
                 raise ValueError(f"Maximum {option.args_max()} values allowed")

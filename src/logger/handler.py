@@ -7,6 +7,8 @@ from datetime import datetime
 
 from typing import Callable, Any, Sequence
 
+from utils.serializer import json_serialize
+
 
 class AsyncErrorHandler(logging.Handler):
     """ """
@@ -48,10 +50,14 @@ class DailyFileHandler(logging.FileHandler):
         """
         self._base_dir = base_dir
         now = datetime.now()
-        filename = os.path.join(base_dir, now.strftime("%Y\\%b\\%d") + ".log")
+        filename = self._get_filename(timestamp=now)
         os.makedirs(name=os.path.dirname(p=filename), exist_ok=True)
-
         logging.FileHandler.__init__(self=self, filename=filename, encoding=encoding)
+
+    def _get_filename(self, timestamp: datetime):
+        return os.path.join(
+            self._base_dir, timestamp.strftime("%Y/%b/%d") + "_log.json"
+        )
 
     def _update_stream(self, record: logging.LogRecord):
         """
@@ -60,7 +66,7 @@ class DailyFileHandler(logging.FileHandler):
         """
         # Example of the directory and filename: logs/2025/January/17.log
         now = datetime.fromtimestamp(record.created)
-        filename = os.path.join(self._base_dir, now.strftime("%Y\\%b\\%d") + ".log")
+        filename = self._get_filename(timestamp=now)
         # If the filename has changed (or none yet), update
         if filename != self.baseFilename:
             # Close the old stream if open
@@ -73,4 +79,20 @@ class DailyFileHandler(logging.FileHandler):
 
     def emit(self, record: logging.LogRecord):
         self._update_stream(record=record)
-        logging.FileHandler.emit(self=self, record=record)
+        if self.stream is None:
+            if self.mode != "w" or not self._closed: # type: ignore
+                self.stream = self._open()
+        if self.stream:
+            try:
+                log_data = vars(record)
+                if record.args and isinstance(record.args, dict):
+                    log_data = {**log_data, **record.args}
+                log = json_serialize(obj=log_data)
+                
+                stream = self.stream
+                stream.write(log + self.terminator)
+                logging.StreamHandler.flush(self=self)
+            except RecursionError:
+                raise
+            except Exception:
+                self.handleError(record=record)

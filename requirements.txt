@@ -12,6 +12,9 @@ sqlalchemy[asyncio]
 asyncpg
 alembic
 redis
+#log
+#python-json-logger
+#structlog
 #excel
 openpyxl
 #blob storage

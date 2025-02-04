@@ -37,7 +37,7 @@ def setup():
     logging.config.dictConfig(config=APP_SETTINGS.logging)
 
 
-async def aomninotify(log_entry: str):
+async def aomninotify(msg: str):
     """
     Send log message as notification
     """
@@ -45,7 +45,7 @@ async def aomninotify(log_entry: str):
         return
     for channel in NOTIFY_CHANNELS:
         if isinstance(channel, DiscordAPI):
-            await channel.asend_bot_message(message=log_entry)
+            await channel.asend_bot_message(message=msg)
 
 
 def log(
